@@ -1,11 +1,13 @@
-
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id: surgeryId } = await params;
     const { roomId, newStatus } = await request.json();
-    const surgeryId = params.id;
 
     const roomRef = db.ref(`rooms/${roomId}`);
     const snapshot = await roomRef.once('value');
@@ -26,10 +28,13 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id: surgeryId } = await params;
     const { roomId } = await request.json();
-    const surgeryId = params.id;
 
     const roomRef = db.ref(`rooms/${roomId}`);
     const snapshot = await roomRef.once('value');
