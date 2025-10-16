@@ -1,21 +1,11 @@
+
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, X, Clock, CheckCircle } from 'lucide-react';
 
-const SurgeryRoomDisplay = () => {
+const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChange, handleRemoveSurgery, isAdmin }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500'];
   
-  const [rooms, setRooms] = useState([
-    { id: 1, color: roomColors[0], surgeries: [] },
-    { id: 2, color: roomColors[1], surgeries: [] },
-    { id: 3, color: roomColors[2], surgeries: [] },
-    { id: 4, color: roomColors[3], surgeries: [] },
-    { id: 5, color: roomColors[4], surgeries: [] }
-  ]);
-  
-  const [history, setHistory] = useState([]);
-  const [savedPatients, setSavedPatients] = useState([]);
-  const [savedDoctors, setSavedDoctors] = useState([]);
-  const [savedSurgeryTypes, setSavedSurgeryTypes] = useState([]);
   const [hospitalName, setHospitalName] = useState('Mansoura University Eye Center');
   const [showSettings, setShowSettings] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -35,61 +25,9 @@ const SurgeryRoomDisplay = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-      autoCompleteAndAdvance();
     }, 60000);
     return () => clearInterval(timer);
-  }, [rooms]);
-
-  const autoCompleteAndAdvance = () => {
-    const now = new Date();
-    
-    setRooms(prevRooms => prevRooms.map(room => {
-      const updatedSurgeries = [...room.surgeries];
-      let hasChanges = false;
-      
-      for (let i = 0; i < updatedSurgeries.length; i++) {
-        const surgery = updatedSurgeries[i];
-        const nextSurgery = updatedSurgeries[i + 1];
-        
-        if (surgery.status === 'scheduled' && nextSurgery && nextSurgery.status === 'scheduled') {
-          const nextSurgeryDate = new Date(nextSurgery.date);
-          const [hours, minutes] = nextSurgery.time.split(':');
-          nextSurgeryDate.setHours(parseInt(hours), parseInt(minutes), 0);
-          
-          if (now >= nextSurgeryDate) {
-            updatedSurgeries[i] = { ...surgery, status: 'completed' };
-            hasChanges = true;
-          }
-        }
-      }
-      
-      return hasChanges ? { ...room, surgeries: updatedSurgeries } : room;
-    }));
-
-    setHistory(prevHistory => {
-      const now = new Date();
-      return prevHistory.map(record => {
-        if (record.status === 'scheduled') {
-          const room = rooms.find(r => r.id === record.roomId);
-          if (room) {
-            const surgeryIndex = room.surgeries.findIndex(s => s.id === record.id);
-            const nextSurgery = room.surgeries[surgeryIndex + 1];
-            
-            if (nextSurgery && nextSurgery.status === 'scheduled') {
-              const nextSurgeryDate = new Date(nextSurgery.date);
-              const [hours, minutes] = nextSurgery.time.split(':');
-              nextSurgeryDate.setHours(parseInt(hours), parseInt(minutes), 0);
-              
-              if (now >= nextSurgeryDate) {
-                return { ...record, status: 'completed' };
-              }
-            }
-          }
-        }
-        return record;
-      });
-    });
-  };
+  }, []);
 
   const isCurrentSurgery = (surgery) => {
     const now = new Date();
@@ -124,66 +62,16 @@ const SurgeryRoomDisplay = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleAddSurgery = (roomId) => {
+  const onAddSurgery = () => {
     if (!formData.patientName || !formData.date || !formData.time || !formData.surgeryType || !formData.doctorName) {
       alert('Please fill all fields');
       return;
     }
-
-    if (!savedPatients.includes(formData.patientName)) {
-      setSavedPatients([...savedPatients, formData.patientName]);
-    }
-    if (!savedDoctors.includes(formData.doctorName)) {
-      setSavedDoctors([...savedDoctors, formData.doctorName]);
-    }
-    if (!savedSurgeryTypes.includes(formData.surgeryType)) {
-      setSavedSurgeryTypes([...savedSurgeryTypes, formData.surgeryType]);
-    }
-
-    const newSurgery = {
-      ...formData,
-      id: Date.now(),
-      roomId,
-      status: 'scheduled',
-      timestamp: new Date().toISOString()
-    };
-
-    setRooms(rooms.map(room => 
-      room.id === roomId 
-        ? { ...room, surgeries: [...room.surgeries, newSurgery].sort((a, b) => a.time.localeCompare(b.time)) }
-        : room
-    ));
-    
-    setHistory([newSurgery, ...history]);
+    handleAddSurgery(editingRoom, formData);
     setFormData({ patientName: '', date: '', time: '', surgeryType: '', doctorName: '' });
     setShowAddForm(false);
     setEditingRoom(null);
-  };
-
-  const handleStatusChange = (roomId, surgeryId, newStatus) => {
-    setRooms(rooms.map(room => 
-      room.id === roomId 
-        ? { 
-            ...room, 
-            surgeries: room.surgeries.map(s => 
-              s.id === surgeryId ? { ...s, status: newStatus } : s
-            )
-          }
-        : room
-    ));
-    
-    setHistory(history.map(h => 
-      h.id === surgeryId ? { ...h, status: newStatus } : h
-    ));
-  };
-
-  const handleRemoveSurgery = (roomId, surgeryId) => {
-    setRooms(rooms.map(room => 
-      room.id === roomId 
-        ? { ...room, surgeries: room.surgeries.filter(s => s.id !== surgeryId) }
-        : room
-    ));
-  };
+  }
 
   const filteredHistory = history.filter(record =>
     record.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -223,12 +111,12 @@ const SurgeryRoomDisplay = () => {
         </div>
 
         <div className="flex justify-end gap-3 mb-6">
-          <button
+          {isAdmin && <button
             onClick={() => setShowSettings(!showSettings)}
             className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-lg font-medium"
           >
             Settings
-          </button>
+          </button>}
           <button
             onClick={() => setShowHistory(!showHistory)}
             className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 flex items-center gap-2 text-lg font-medium"
@@ -261,7 +149,7 @@ const SurgeryRoomDisplay = () => {
                 <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
                   <div className={`${room.color} text-white p-4 flex justify-between items-center`}>
                     <h2 className="text-2xl font-bold">Surgery {room.id}</h2>
-                    <button
+                    {isAdmin && <button
                       onClick={() => {
                         setEditingRoom(room.id);
                         setShowAddForm(true);
@@ -269,11 +157,11 @@ const SurgeryRoomDisplay = () => {
                       className="bg-white bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg"
                     >
                       <Plus size={20} />
-                    </button>
+                    </button>}
                   </div>
                   
                   <div className="p-4">
-                    {room.surgeries.length > 0 ? (
+                    {room.surgeries && room.surgeries.length > 0 ? (
                       <div className="space-y-3 max-h-[600px] overflow-y-auto">
                         {room.surgeries.map((surgery) => {
                           const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
@@ -287,12 +175,12 @@ const SurgeryRoomDisplay = () => {
                                     {surgery.time}
                                   </p>
                                 </div>
-                                <button
+                                {isAdmin && <button
                                   onClick={() => handleRemoveSurgery(room.id, surgery.id)}
                                   className="text-gray-400 hover:text-red-500"
                                 >
                                   <X size={16} />
-                                </button>
+                                </button>}
                               </div>
                               
                               <div className="text-sm space-y-1 mb-2">
@@ -301,7 +189,7 @@ const SurgeryRoomDisplay = () => {
                               </div>
                               
                               <div className="flex gap-2">
-                                {surgery.status === 'scheduled' && isCurrent && (
+                                {isAdmin && surgery.status === 'scheduled' && isCurrent && (
                                   <button
                                     onClick={() => handleStatusChange(room.id, surgery.id, 'completed')}
                                     className="flex-1 px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 flex items-center justify-center gap-1 font-medium"
@@ -405,16 +293,10 @@ const SurgeryRoomDisplay = () => {
                   <input
                     type="text"
                     name="patientName"
-                    list="patients"
                     value={formData.patientName}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
                   />
-                  <datalist id="patients">
-                    {savedPatients.map((patient, idx) => (
-                      <option key={idx} value={patient} />
-                    ))}
-                  </datalist>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-5">
@@ -446,16 +328,10 @@ const SurgeryRoomDisplay = () => {
                   <input
                     type="text"
                     name="surgeryType"
-                    list="surgeryTypes"
                     value={formData.surgeryType}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
                   />
-                  <datalist id="surgeryTypes">
-                    {savedSurgeryTypes.map((type, idx) => (
-                      <option key={idx} value={type} />
-                    ))}
-                  </datalist>
                 </div>
                 
                 <div>
@@ -463,20 +339,14 @@ const SurgeryRoomDisplay = () => {
                   <input
                     type="text"
                     name="doctorName"
-                    list="doctors"
                     value={formData.doctorName}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
                   />
-                  <datalist id="doctors">
-                    {savedDoctors.map((doctor, idx) => (
-                      <option key={idx} value={doctor} />
-                    ))}
-                  </datalist>
                 </div>
                 
                 <button
-                  onClick={() => handleAddSurgery(editingRoom)}
+                  onClick={onAddSurgery}
                   className="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-xl font-medium"
                 >
                   <Plus size={24} />

@@ -1,0 +1,99 @@
+{
+    "rooms": {
+      "1": {
+        "id": 1,
+        "color": "bg-blue-500",
+        "surgeries": [
+          {
+            "id": 1678886400000,
+            "patientName": "John Doe",
+            "date": "2025-10-26",
+            "time": "09:00",
+            "surgeryType": "Cataract Surgery",
+            "doctorName": "Dr. Smith",
+            "status": "scheduled",
+            "roomId": 1,
+            "timestamp": "2025-10-26T08:00:00.000Z"
+          },
+          {
+            "id": 1678890000000,
+            "patientName": "Jane Smith",
+            "date": "2025-10-26",
+            "time": "10:00",
+            "surgeryType": "LASIK",
+            "doctorName": "Dr. Smith",
+            "status": "scheduled",
+            "roomId": 1,
+            "timestamp": "2025-10-26T08:05:00.000Z"
+          }
+        ]
+      },
+      "2": {
+        "id": 2,
+        "color": "bg-green-500",
+        "surgeries": [
+          {
+            "id": 1678893600000,
+            "patientName": "Peter Jones",
+            "date": "2025-10-26",
+            "time": "11:00",
+            "surgeryType": "Retinal Detachment",
+            "doctorName": "Dr. Elara",
+            "status": "scheduled",
+            "roomId": 2,
+            "timestamp": "2025-10-26T09:30:00.000Z"
+          }
+        ]
+      },
+      "3": {
+        "id": 3,
+        "color": "bg-purple-500",
+        "surgeries": []
+      },
+      "4": {
+        "id": 4,
+        "color": "bg-orange-500",
+        "surgeries": []
+      },
+      "5": {
+        "id": 5,
+        "color": "bg-pink-500",
+        "surgeries": []
+      }
+    },
+    "history": {
+      "1678886400000": {
+        "id": 1678886400000,
+        "patientName": "John Doe",
+        "date": "2025-10-26",
+        "time": "09:00",
+        "surgeryType": "Cataract Surgery",
+        "doctorName": "Dr. Smith",
+        "status": "scheduled",
+        "roomId": 1,
+        "timestamp": "2025-10-26T08:00:00.000Z"
+      },
+      "1678890000000": {
+        "id": 1678890000000,
+        "patientName": "Jane Smith",
+        "date": "2025-10-26",
+        "time": "10:00",
+        "surgeryType": "LASIK",
+        "doctorName": "Dr. Smith",
+        "status": "scheduled",
+        "roomId": 1,
+        "timestamp": "2025-10-26T08:05:00.000Z"
+      },
+      "1678893600000": {
+        "id": 1678893600000,
+        "patientName": "Peter Jones",
+        "date": "2025-10-26",
+        "time": "11:00",
+        "surgeryType": "Retinal Detachment",
+        "doctorName": "Dr. Elara",
+        "status": "scheduled",
+        "roomId": 2,
+        "timestamp": "2025-10-26T09:30:00.000Z"
+      }
+    }
+  }
