@@ -13,6 +13,7 @@ const ViewerPage = () => {
     const roomsRef = ref(database, 'rooms');
     onValue(roomsRef, (snapshot) => {
       const data = snapshot.val();
+      console.log('rooms data:', data);
       if (data) {
         setRooms(Object.values(data));
       }
@@ -21,6 +22,7 @@ const ViewerPage = () => {
     const historyRef = ref(database, 'history');
     onValue(historyRef, (snapshot) => {
       const data = snapshot.val();
+      console.log('history data:', data);
       if (data) {
         setHistory(Object.values(data));
       }

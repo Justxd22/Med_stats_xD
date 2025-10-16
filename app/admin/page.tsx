@@ -16,7 +16,7 @@ const AdminPage = () => {
 
       // In a real app, you would fetch history from a separate endpoint
       // For now, we will just use the rooms data to build the history
-      const allSurgeries = Object.values(data).flatMap((room: any) => room.surgeries || []);
+      const allSurgeries = Object.values(data).filter(room => room).flatMap((room: any) => room.surgeries || []);
       setHistory(allSurgeries);
 
     } catch (error) {

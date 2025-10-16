@@ -42,6 +42,9 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
   };
 
   const getCurrentSurgery = (surgeries) => {
+    if (!surgeries) {
+      return null;
+    }
     const scheduled = surgeries.filter(s => s.status === 'scheduled');
     for (let surgery of scheduled) {
       if (isCurrentSurgery(surgery)) {
@@ -143,7 +146,7 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
 
         {!showHistory ? (
           <div className="grid grid-cols-5 gap-4">
-            {rooms.map(room => {
+            {rooms.filter(room => room).map(room => {
               const currentSurgery = getCurrentSurgery(room.surgeries);
               return (
                 <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
