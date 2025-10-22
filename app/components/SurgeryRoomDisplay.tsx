@@ -6,7 +6,7 @@ import { Search, Plus, X, Clock, CheckCircle } from 'lucide-react';
 const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChange, handleRemoveSurgery, isAdmin }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500'];
   
-  const [hospitalName, setHospitalName] = useState('Mansoura University Eye Center');
+  const [hospitalName, setHospitalName] = useState('Mansoura University');
   const [showSettings, setShowSettings] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
@@ -85,12 +85,12 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
   return (
     <div className="min-h-screen bg-gray-900 p-4">
       <div className="max-w-full mx-auto">
-        {/* Hospital Header */}
+        {/* Hospital Header */} 
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 rounded-lg shadow-2xl mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-5xl font-bold mb-2">{hospitalName}</h1>
-              <p className="text-2xl text-blue-100">Surgery Room Status Board</p>
+              <h1 className="text-4xl font-bold mb-2">Mansoura University</h1>
+              <p className="text-3xl text-blue-100">Ophthalmology Center</p>
             </div>
             <div className="text-right">
               <p className="text-3xl font-bold">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
@@ -145,7 +145,7 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
         )}
 
         {!showHistory ? (
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-7 gap-4">
             {rooms.filter(room => room).map(room => {
               const currentSurgery = getCurrentSurgery(room.surgeries);
               return (

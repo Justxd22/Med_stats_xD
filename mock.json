@@ -59,6 +59,16 @@
         "id": 5,
         "color": "bg-pink-500",
         "surgeries": []
+      },
+      "6": {
+        "id": 5,
+        "color": "bg-pink-500",
+        "surgeries": []
+      },
+      "7": {
+        "id": 5,
+        "color": "bg-pink-500",
+        "surgeries": []
       }
     },
     "history": {
