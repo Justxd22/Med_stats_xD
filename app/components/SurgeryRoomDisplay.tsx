@@ -2,6 +2,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, X, Clock, CheckCircle } from 'lucide-react';
+import Image from 'next/image';
 
 const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChange, handleRemoveSurgery, isAdmin }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500'];
@@ -82,22 +83,34 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
     record.surgeryType.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const todayString = new Date().toDateString();
+  const todaysSurgeries = rooms.filter(room => room).flatMap(room => room.surgeries || []).filter(surgery => new Date(surgery.date).toDateString() === todayString);
+  const totalToday = todaysSurgeries.length;
+  const totalCompletedToday = todaysSurgeries.filter(s => s.status === 'completed').length;
+
   return (
     <div className="min-h-screen bg-gray-900 p-4">
       <div className="max-w-full mx-auto">
         {/* Hospital Header */} 
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 rounded-lg shadow-2xl mb-6">
+        <div className="bg-white  text-white p-4 rounded-lg shadow-2xl mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Mansoura University</h1>
-              <p className="text-3xl text-blue-100">Ophthalmology Center</p>
+              <h1 className="text-4xl font-bold mb-2 text-blue-900 pl-6">Mansoura University</h1>
+              <p className="text-3xl text-gray-600 pl-6">Ophthalmology Center</p>
+            </div>
+            <div className="flex justify-center">
+                <Image src="/logo.png" alt="Logo" width={130} height={130} />
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-              <p className="text-xl text-blue-100">{currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <p className="text-3xl font-bold text-blue-900 pr-6">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="text-xl text-gray-600 pr-6">{currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              {/* <div className="mt-2">
+                <p className="text-lg text-blue-900">Total Operations Today: {totalToday}</p>
+                <p className="text-lg text-blue-900">Completed Today: {totalCompletedToday}</p>
+              </div> */}
             </div>
           </div>
-          <div className="flex gap-4 mt-4 text-lg">
+          {/* <div className="flex gap-4 mt-4 text-lg text-blue-900">
             <div className="flex items-center gap-2">
               <span className="w-4 h-4 bg-red-500 rounded"></span>
               <span>In Progress</span>
@@ -110,23 +123,25 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
               <span className="w-4 h-4 bg-gray-300 rounded"></span>
               <span>Scheduled</span>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex justify-end gap-3 mb-6">
-          {isAdmin && <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-lg font-medium"
-          >
-            Settings
-          </button>}
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 flex items-center gap-2 text-lg font-medium"
-          >
-            <Search size={22} />
-            {showHistory ? 'View Rooms' : 'Search History'}
-          </button>
+          {isAdmin && (<>
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-lg font-medium"
+            >
+              Settings
+            </button>
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 flex items-center gap-2 text-lg font-medium"
+            >
+              <Search size={22} />
+              {showHistory ? 'View Rooms' : 'Search History'}
+            </button>
+          </>)}
         </div>
 
         {showSettings && (
@@ -259,7 +274,7 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
                       <td className="px-6 py-4 text-lg">{record.surgeryType}</td>
                       <td className="px-6 py-4 text-lg">{record.doctorName}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded text-sm ${record.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                        <span className={`px-3 py-1 rounded text-sm ${record.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-red-00 text-gray-800'}`}>
                           {record.status}
                         </span>
                       </td>
@@ -359,6 +374,36 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
             </div>
           </div>
         )}
+      </div>
+
+      {/* Bottom Info Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white text-gray-900 p-4 shadow-lg border-t-2 border-gray-200">
+        <div className="max-w-full mx-auto flex justify-between items-center">
+          <div className="flex gap-8 text-xm pl-15">
+            <div className="flex flex-col items-center text-gray-500">
+              <p>Total Operations Today</p>
+              <span className="text-3xl text-gray-600 font-bold">{totalToday}</span>
+            </div>
+            <div className="flex flex-col items-center text-gray-500">
+              <p>Completed Today</p>
+              <span className="text-3xl text-green-500  font-bold">{totalCompletedToday}</span>
+            </div>
+          </div>
+          <div className="flex gap-6 text-lg">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 bg-red-100 border-2 border-red-300 rounded"></span>
+              <span>In Progress</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 bg-green-100 border-2 border-green-300 rounded"></span>
+              <span>Completed</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 bg-gray-100 border-2 border-gray-300 rounded"></span>
+              <span>Scheduled</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
