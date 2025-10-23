@@ -180,7 +180,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               <h1 className="text-3xl lg:text-4xl font-bold mb-2 text-blue-900 pl-6">Mansoura University</h1>
               <p className="text-2xl lg:text-3xl text-gray-600 pl-6">Ophthalmology Center</p>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center relative left-[-80px]">
               <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center overflow-hidden">
                 <Image src="/logo.png" alt="Logo" width={130} height={130} className="object-contain w-full h-full" priority />
               </div>
@@ -250,7 +250,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
         )}
 
         {!showHistory ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4">
             {rooms.filter(room => room).map(room => {
               const currentSurgery = getCurrentSurgery(room.surgeries);
               const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
@@ -464,17 +464,17 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
       {/* Bottom Info Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white text-gray-900 p-3 sm:p-4 shadow-lg border-t-2 border-gray-200">
         <div className="max-w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex gap-4 sm:gap-8 text-xs sm:text-sm">
-            <div className="flex flex-col items-center text-gray-500">
+          <div className="flex gap-4 sm:gap-8 text-xs sm:text-sm pl-15">
+            <div className="flex flex-col items-center text-gray-900 font-bold">
               <p>Total Today</p>
               <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 font-bold">{totalToday}</span>
             </div>
-            <div className="flex flex-col items-center text-gray-500">
+            <div className="flex flex-col items-center text-gray-900 font-bold">
               <p>Completed</p>
               <span className="text-xl sm:text-2xl lg:text-3xl text-green-500 font-bold">{totalCompletedToday}</span>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base pr-15">
             <div className="flex items-center gap-1 sm:gap-2">
               <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-orange-700 border-2 border-orange-700 rounded"></span>
               <span>Waiting</span>
