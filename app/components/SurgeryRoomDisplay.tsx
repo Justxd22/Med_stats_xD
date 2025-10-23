@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, X, Clock, CheckCircle, Pencil } from 'lucide-react';
 import Image from 'next/image';
 
-const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChange, handleRemoveSurgery, isAdmin }) => {
+const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = () => {}, handleRemoveSurgery = () => {}, isAdmin = true }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
   
   const [hospitalName, setHospitalName] = useState('Mansoura University');
@@ -155,56 +155,47 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
   const totalCompletedToday = todaysSurgeries.filter(s => s.status === 'completed').length;
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4">
-      <div className="max-w-full mx-auto pb-32">
+    <div className="min-h-screen bg-gray-900 p-2 sm:p-4">
+      <div className="max-w-full mx-auto pb-24 sm:pb-32">
         {/* Hospital Header */} 
-        <div className="bg-white  text-white p-4 rounded-lg shadow-2xl mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 text-blue-900 pl-6">Mansoura University</h1>
-              <p className="text-3xl text-gray-600 pl-6">Ophthalmology Center</p>
+        <div className="bg-white text-white p-3 sm:p-4 rounded-lg shadow-2xl mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 text-blue-900 sm:pl-6">Mansoura University</h1>
+              <p className="text-xl sm:text-2xl lg:text-3xl text-gray-600 sm:pl-6">Ophthalmology Center</p>
             </div>
-            <div className="flex justify-center">
-                <Image src="/logo.png" alt="Logo" width={130} height={130} />
+            <div className="hidden sm:flex justify-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center overflow-hidden">
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={130}
+                  height={130}
+                  className="object-contain w-full h-full"
+                  priority
+                />
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold text-blue-900 pr-6">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-              <p className="text-xl text-gray-600 pr-6">{currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-              {/* <div className="mt-2">
-                <p className="text-lg text-blue-900">Total Operations Today: {totalToday}</p>
-                <p className="text-lg text-blue-900">Completed Today: {totalCompletedToday}</p>
-              </div> */}
+            <div className="text-center sm:text-right">
+              <p className="text-2xl sm:text-2xl lg:text-3xl font-bold text-blue-900 sm:pr-6">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="text-sm sm:text-base lg:text-xl text-gray-600 sm:pr-6">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
             </div>
           </div>
-          {/* <div className="flex gap-4 mt-4 text-lg text-blue-900">
-            <div className="flex items-center gap-2">
-              <span className="w-4 h-4 bg-red-500 rounded"></span>
-              <span>In Progress</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-4 h-4 bg-green-500 rounded"></span>
-              <span>Completed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-4 h-4 bg-gray-300 rounded"></span>
-              <span>Scheduled</span>
-            </div>
-          </div> */}
         </div>
 
-        <div className="flex justify-end gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mb-4 sm:mb-6">
           {isAdmin && (<>
             <button
               onClick={() => setShowExportModal(!showExportModal)}
-              className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-lg font-medium"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-sm sm:text-base lg:text-lg font-medium"
             >
               Export to Excel
             </button>
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 flex items-center gap-2 text-lg font-medium"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 flex items-center justify-center gap-2 text-sm sm:text-base lg:text-lg font-medium"
             >
-              <Search size={22} />
+              <Search size={18} className="sm:w-5 sm:h-5" />
               {showHistory ? 'View Rooms' : 'Search History'}
             </button>
           </>)}
@@ -212,35 +203,35 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
 
         {showExportModal && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md text-white">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-3xl font-bold">Export to Excel</h3>
+            <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-md text-white">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold">Export to Excel</h3>
                 <button onClick={() => setShowExportModal(false)} className="text-gray-400 hover:text-white">
-                  <X size={32} />
+                  <X size={24} className="sm:w-8 sm:h-8" />
                 </button>
               </div>
-              <div className="space-y-5">
+              <div className="space-y-4 sm:space-y-5">
                 <div>
-                  <label className="block text-lg font-medium mb-2">From</label>
+                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">From</label>
                   <input
                     type="date"
                     value={exportDate}
                     onChange={(e) => setExportDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg"
                   />
                 </div>
                 <div>
-                  <label className="block text-lg font-medium mb-2">To</label>
+                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">To</label>
                   <input
                     type="date"
                     value={exportEndDate}
                     onChange={(e) => setExportEndDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg"
                   />
                 </div>
                 <button
                   onClick={handleExport}
-                  className="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-xl font-medium"
+                  className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-base sm:text-lg lg:text-xl font-medium"
                 >
                   Export
                 </button>
@@ -250,13 +241,13 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
         )}
 
         {!showHistory ? (
-          <div className="grid grid-cols-7 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3 sm:gap-4">
             {rooms.filter(room => room).map(room => {
               const currentSurgery = getCurrentSurgery(room.surgeries);
               return (
                 <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
-                  <div className={`${room.color} text-white p-4 flex justify-between items-center`}>
-                    <h2 className="text-2xl font-bold">OR{room.id}</h2>
+                  <div className={`${room.color} text-white p-3 sm:p-4 flex justify-between items-center`}>
+                    <h2 className="text-xl sm:text-2xl font-bold">OR{room.id}</h2>
                     {isAdmin && <button
                       onClick={() => {
                         setEditingRoom(room.id);
@@ -264,22 +255,22 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
                       }}
                       className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg"
                     >
-                      <Pencil size={20} />
+                      <Pencil size={18} className="sm:w-5 sm:h-5" />
                     </button>}
                   </div>
                   
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     {room.surgeries && room.surgeries.length > 0 ? (
-                      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                      <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
                         {room.surgeries.map((surgery) => {
                           const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
                           return (
-                            <div key={surgery.id} className={`border-2 rounded-lg p-3 ${getStatusColor(surgery, currentSurgery)}`}>
+                            <div key={surgery.id} className={`border-2 rounded-lg p-2 sm:p-3 ${getStatusColor(surgery, currentSurgery)}`}>
                               <div className="flex justify-between items-start mb-2">
                                 <div className="flex-1">
-                                  <p className="font-bold text-lg">{surgery.patientName} ({surgery.age})</p>
-                                  <p className="text-sm flex items-center gap-1 mt-1">
-                                    <Clock size={14} />
+                                  <p className="font-bold text-sm sm:text-base lg:text-lg">{surgery.patientName} ({surgery.age})</p>
+                                  <p className="text-xs sm:text-sm flex items-center gap-1 mt-1">
+                                    <Clock size={12} className="sm:w-3.5 sm:h-3.5" />
                                     {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </p>
                                 </div>
@@ -288,32 +279,29 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
                                     onClick={() => handleRemoveSurgery(room.id, surgery.id)}
                                     className="text-gray-400 hover:text-red-500"
                                   >
-                                    <X size={16} />
+                                    <X size={14} className="sm:w-4 sm:h-4" />
                                   </button>
                                   <button
                                     onClick={() => setEditingSurgery(surgery)}
                                     className="text-gray-400 hover:text-blue-500"
                                   >
-                                    <Pencil size={16} />
+                                    <Pencil size={14} className="sm:w-4 sm:h-4" />
                                   </button>
                                 </div>}
                               </div>
                               
-                              <div className="text-sm space-y-1 mb-2">
+                              <div className="text-xs sm:text-sm space-y-1 mb-2">
                                 <p><span className="font-medium">Diagnosis:</span> {surgery.diagnosis}</p>
                                 <p><span className="font-medium">Anesthesia:</span> {surgery.anesthesiaType}</p>
                                 <p><span className="font-medium">Surgeon:</span> {surgery.surgeonName}</p>
-                              </div>
-                              
-                              <div className="flex gap-2">
                               </div>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-400">
-                        <p className="text-base">No surgeries scheduled</p>
+                      <div className="text-center py-6 sm:py-8 text-gray-400">
+                        <p className="text-sm sm:text-base">No surgeries scheduled</p>
                       </div>
                     )}
                   </div>
@@ -322,14 +310,14 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
             })}
           </div>
         ) : (
-          <div className="bg-gray-800 rounded-lg shadow-2xl p-6 text-white">
-            <div className="mb-6">
+          <div className="bg-gray-800 rounded-lg shadow-2xl p-4 sm:p-6 text-white">
+            <div className="mb-4 sm:mb-6">
               <input
                 type="text"
                 placeholder="Search by patient name, surgeon, or diagnosis..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-6 py-4 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg"
               />
             </div>
             
@@ -337,27 +325,27 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
               <table className="w-full">
                 <thead className="bg-gray-700 border-b border-gray-600">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Room</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Patient</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Date/Time</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Diagnosis</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Surgeon</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Status</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-300 uppercase">Room</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-300 uppercase">Patient</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-300 uppercase hidden md:table-cell">Date/Time</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-300 uppercase hidden lg:table-cell">Diagnosis</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-300 uppercase hidden xl:table-cell">Surgeon</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-300 uppercase">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
                   {filteredHistory.map(record => (
                     <tr key={record.id} className="hover:bg-gray-700">
-                      <td className="px-6 py-4">
-                        <span className={`inline-block w-4 h-4 rounded-full ${roomColors[record.roomId - 1]}`}></span>
-                        <span className="ml-2 text-lg">{record.roomId}</span>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4">
+                        <span className={`inline-block w-3 h-3 sm:w-4 sm:h-4 rounded-full ${roomColors[record.roomId - 1]}`}></span>
+                        <span className="ml-2 text-sm sm:text-base lg:text-lg">{record.roomId}</span>
                       </td>
-                      <td className="px-6 py-4 font-medium text-lg">{record.patientName} ({record.age})</td>
-                      <td className="px-6 py-4 text-lg">{new Date(record.dateTime).toLocaleString()}</td>
-                      <td className="px-6 py-4 text-lg">{record.diagnosis}</td>
-                      <td className="px-6 py-4 text-lg">{record.surgeonName}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded text-sm ${record.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 font-medium text-sm sm:text-base lg:text-lg">{record.patientName} ({record.age})</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base lg:text-lg hidden md:table-cell">{new Date(record.dateTime).toLocaleString()}</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base lg:text-lg hidden lg:table-cell">{record.diagnosis}</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base lg:text-lg hidden xl:table-cell">{record.surgeonName}</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4">
+                        <span className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm ${record.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                           {record.status}
                         </span>
                       </td>
@@ -366,8 +354,8 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
                 </tbody>
               </table>
               {filteredHistory.length === 0 && (
-                <div className="text-center py-12 text-gray-400">
-                  <p className="text-xl">No records found</p>
+                <div className="text-center py-8 sm:py-12 text-gray-400">
+                  <p className="text-base sm:text-xl">No records found</p>
                 </div>
               )}
             </div>
@@ -376,51 +364,51 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
 
         {showAddForm && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg p-8 w-full max-w-2xl text-white">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-3xl font-bold">Add Surgery - Room {editingRoom}</h3>
+            <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-2xl text-white max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold">Add Surgery - Room {editingRoom}</h3>
                 <button onClick={() => {
                   setShowAddForm(false);
                   setEditingRoom(null);
                   setFormData({ patientName: '', age: '', dateTime: '', diagnosis: '', anesthesiaType: '', surgeonName: '' });
                 }} className="text-gray-400 hover:text-white">
-                  <X size={32} />
+                  <X size={24} className="sm:w-8 sm:h-8" />
                 </button>
               </div>
               
-              <div className="space-y-5">
-                <div className="grid grid-cols-2 gap-5">
+              <div className="space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="block text-lg font-medium mb-2">Patient Name</label>
-                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                    <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Patient Name</label>
+                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
                   </div>
                   <div>
-                    <label className="block text-lg font-medium mb-2">Age</label>
-                    <input type="number" name="age" value={formData.age} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                    <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Age</label>
+                    <input type="number" name="age" value={formData.age} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-lg font-medium mb-2">Date/Time</label>
-                  <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Date/Time</label>
+                  <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
                 </div>
                 <div>
-                  <label className="block text-lg font-medium mb-2">Diagnosis</label>
-                  <input type="text" name="diagnosis" value={formData.diagnosis} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Diagnosis</label>
+                  <input type="text" name="diagnosis" value={formData.diagnosis} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
                 </div>
                 <div>
-                  <label className="block text-lg font-medium mb-2">Anesthesia Type</label>
-                  <input type="text" name="anesthesiaType" value={formData.anesthesiaType} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Anesthesia Type</label>
+                  <input type="text" name="anesthesiaType" value={formData.anesthesiaType} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
                 </div>
                 <div>
-                  <label className="block text-lg font-medium mb-2">Surgeon Name</label>
-                  <input type="text" name="surgeonName" value={formData.surgeonName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Surgeon Name</label>
+                  <input type="text" name="surgeonName" value={formData.surgeonName} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
                 </div>
                 
                 <button
                   onClick={onAddSurgery}
-                  className="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-xl font-medium"
+                  className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-base sm:text-lg lg:text-xl font-medium"
                 >
-                  <Plus size={24} />
+                  <Plus size={20} className="sm:w-6 sm:h-6" />
                   Add Surgery
                 </button>
               </div>
@@ -430,19 +418,19 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
 
         {editingSurgery && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md text-white">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-3xl font-bold">Update Status</h3>
+            <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-md text-white">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold">Update Status</h3>
                 <button onClick={() => setEditingSurgery(null)} className="text-gray-400 hover:text-white">
-                  <X size={32} />
+                  <X size={24} className="sm:w-8 sm:h-8" />
                 </button>
               </div>
-              <div className="space-y-5">
-                <p>Patient: {editingSurgery.patientName}</p>
+              <div className="space-y-4 sm:space-y-5">
+                <p className="text-sm sm:text-base">Patient: {editingSurgery.patientName}</p>
                 <select 
                   onChange={(e) => handleStatusChange(editingSurgery.roomId, editingSurgery.id, e.target.value)}
                   defaultValue={editingSurgery.status}
-                  className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg"
                 >
                   <option value="scheduled">Waiting</option>
                   <option value="in-progress">In Progress</option>
@@ -456,33 +444,33 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
       </div>
 
       {/* Bottom Info Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white text-gray-900 p-4 shadow-lg border-t-2 border-gray-200">
-        <div className="max-w-full mx-auto flex justify-between items-center">
-          <div className="flex gap-8 text-xm pl-15">
+      <div className="fixed bottom-0 left-0 right-0 bg-white text-gray-900 p-3 sm:p-4 shadow-lg border-t-2 border-gray-200">
+        <div className="max-w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex gap-4 sm:gap-8 text-xs sm:text-sm">
             <div className="flex flex-col items-center text-gray-500">
-              <p>Total Operations Today</p>
-              <span className="text-3xl text-gray-600 font-bold">{totalToday}</span>
+              <p>Total Today</p>
+              <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 font-bold">{totalToday}</span>
             </div>
             <div className="flex flex-col items-center text-gray-500">
-              <p>Completed Today</p>
-              <span className="text-3xl text-green-500  font-bold">{totalCompletedToday}</span>
+              <p>Completed</p>
+              <span className="text-xl sm:text-2xl lg:text-3xl text-green-500 font-bold">{totalCompletedToday}</span>
             </div>
           </div>
-          <div className="flex gap-6 text-lg pr-15">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 bg-orange-700 border-2 border-orange-700 rounded"></span>
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-orange-700 border-2 border-orange-700 rounded"></span>
               <span>Waiting</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 bg-red-700 border-2 border-red-700 rounded"></span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-red-700 border-2 border-red-700 rounded"></span>
               <span>Delayed</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 bg-green-700 border-2 border-green-700 rounded"></span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-green-700 border-2 border-green-700 rounded"></span>
               <span>Completed</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 bg-blue-700 border-2 border-blue-700 rounded"></span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-blue-700 border-2 border-blue-700 rounded"></span>
               <span>In Progress</span>
             </div>
           </div>
