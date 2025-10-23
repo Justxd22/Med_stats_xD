@@ -149,10 +149,9 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     record.diagnosis.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const todayString = new Date().toDateString();
-  const todaysSurgeries = rooms.filter(room => room).flatMap(room => room.surgeries || []).filter(surgery => new Date(surgery.dateTime).toDateString() === todayString);
-  const totalToday = todaysSurgeries.length;
-  const totalCompletedToday = todaysSurgeries.filter(s => s.status === 'completed').length;
+  const allSurgeries = rooms.filter(room => room).flatMap(room => room.surgeries || []);
+  const totalOperations = allSurgeries.length;
+  const totalCompleted = allSurgeries.filter(s => s.status === 'completed').length;
 
   return (
     <div className="min-h-screen bg-gray-900 p-2 sm:p-4">
@@ -466,12 +465,12 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
         <div className="max-w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex gap-4 sm:gap-8 text-xs sm:text-sm pl-15">
             <div className="flex flex-col items-center text-gray-900 font-bold">
-              <p>Total Today</p>
-              <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 font-bold">{totalToday}</span>
+              <p>Total Operations</p>
+              <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 font-bold">{totalOperations}</span>
             </div>
             <div className="flex flex-col items-center text-gray-900 font-bold">
-              <p>Completed</p>
-              <span className="text-xl sm:text-2xl lg:text-3xl text-green-500 font-bold">{totalCompletedToday}</span>
+              <p>Total Completed</p>
+              <span className="text-xl sm:text-2xl lg:text-3xl text-green-500 font-bold">{totalCompleted}</span>
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base pr-15">
