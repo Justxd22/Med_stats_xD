@@ -1,7 +1,7 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, X, Clock, CheckCircle, Pencil } from 'lucide-react';
+import { Search, Plus, X, Clock, CheckCircle, Pencil, Link } from 'lucide-react';
 import Image from 'next/image';
 
 const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = () => {}, handleRemoveSurgery = () => {}, isAdmin = true }) => {
@@ -249,83 +249,88 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
         )}
 
         {!showHistory ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4">
-            {rooms.filter(room => room).map(room => {
-              const currentSurgery = getCurrentSurgery(room.surgeries);
-              const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
-              const completedSurgeriesInRoom = room.surgeries ? room.surgeries.filter(s => s.status === 'completed').length : 0;
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4">
+              {rooms.filter(room => room).map(room => {
+                const currentSurgery = getCurrentSurgery(room.surgeries);
+                const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
+                const completedSurgeriesInRoom = room.surgeries ? room.surgeries.filter(s => s.status === 'completed').length : 0;
 
-              return (
-                <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
-                  <div className={`bg-white text-white p-3 sm:p-4 flex justify-between items-center`}>
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800">OR{room.id}</h2>
-                    <div className="flex items-center gap-4">
-                      <div className="text-xs text-right text-gray-700">
-                        <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
-                        <p className='text-green-700 font-bold'>Completed: {completedSurgeriesInRoom}</p>
+                return (
+                  <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
+                    <div className={`bg-white text-white p-3 sm:p-4 flex justify-between items-center`}>
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-800">OR{room.id}</h2>
+                      <div className="flex items-center gap-4">
+                        <div className="text-xs text-right text-gray-700">
+                          <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
+                          <p className='text-green-700 font-bold'>Completed: {completedSurgeriesInRoom}</p>
+                        </div>
+                        {isAdmin && <button
+                          onClick={() => {
+                            setEditingRoom(room.id);
+                            setShowAddForm(true);
+                          }}
+                          className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg bg-black"
+                        >
+                          <Pencil size={18} className="sm:w-5 sm:h-5" />
+                        </button>}
                       </div>
-                      {isAdmin && <button
-                        onClick={() => {
-                          setEditingRoom(room.id);
-                          setShowAddForm(true);
-                        }}
-                        className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg bg-black"
-                      >
-                        <Pencil size={18} className="sm:w-5 sm:h-5" />
-                      </button>}
+                    </div>
+                    
+                    <div className="p-3 sm:p-4">
+                      {room.surgeries && room.surgeries.length > 0 ? (
+                        <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
+                          {room.surgeries.map((surgery) => {
+                            const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
+                            return (
+                              <div key={surgery.id} className={`border-2 rounded-lg p-2 sm:p-3 ${getStatusColor(surgery, currentSurgery)}`}>
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="flex-1">
+                                    <p className="font-bold text-sm sm:text-base lg:text-lg">{surgery.patientName} ({surgery.age})</p>
+                                    <p className="text-xs sm:text-sm flex items-center gap-1 mt-1">
+                                      <Clock size={12} className="sm:w-3.5 sm:h-3.5" />
+                                      {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                  </div>
+                                  {isAdmin && <div className="flex flex-col gap-2">
+                                    <button
+                                      onClick={() => handleRemoveSurgery(room.id, surgery.id)}
+                                      className="text-gray-400 hover:text-red-500"
+                                    >
+                                      <X size={14} className="sm:w-4 sm:h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingSurgery(surgery)}
+                                      className="text-gray-400 hover:text-blue-500"
+                                    >
+                                      <Pencil size={14} className="sm:w-4 sm:h-4" />
+                                    </button>
+                                  </div>}
+                                </div>
+                                
+                                <div className="text-xs sm:text-sm space-y-1 mb-2">
+                                  <p><span className="font-medium">Diagnosis:</span> {surgery.diagnosis}</p>
+                                  <p><span className="font-medium">Anesthesia:</span> {surgery.anesthesiaType}</p>
+                                  <p><span className="font-medium">Surgeon:</span> {surgery.surgeonName}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 sm:py-8 text-gray-400">
+                          <p className="text-sm sm:text-base">No surgeries scheduled</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  
-                  <div className="p-3 sm:p-4">
-                    {room.surgeries && room.surgeries.length > 0 ? (
-                      <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
-                        {room.surgeries.map((surgery) => {
-                          const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
-                          return (
-                            <div key={surgery.id} className={`border-2 rounded-lg p-2 sm:p-3 ${getStatusColor(surgery, currentSurgery)}`}>
-                              <div className="flex justify-between items-start mb-2">
-                                <div className="flex-1">
-                                  <p className="font-bold text-sm sm:text-base lg:text-lg">{surgery.patientName} ({surgery.age})</p>
-                                  <p className="text-xs sm:text-sm flex items-center gap-1 mt-1">
-                                    <Clock size={12} className="sm:w-3.5 sm:h-3.5" />
-                                    {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </p>
-                                </div>
-                                {isAdmin && <div className="flex flex-col gap-2">
-                                  <button
-                                    onClick={() => handleRemoveSurgery(room.id, surgery.id)}
-                                    className="text-gray-400 hover:text-red-500"
-                                  >
-                                    <X size={14} className="sm:w-4 sm:h-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingSurgery(surgery)}
-                                    className="text-gray-400 hover:text-blue-500"
-                                  >
-                                    <Pencil size={14} className="sm:w-4 sm:h-4" />
-                                  </button>
-                                </div>}
-                              </div>
-                              
-                              <div className="text-xs sm:text-sm space-y-1 mb-2">
-                                <p><span className="font-medium">Diagnosis:</span> {surgery.diagnosis}</p>
-                                <p><span className="font-medium">Anesthesia:</span> {surgery.anesthesiaType}</p>
-                                <p><span className="font-medium">Surgeon:</span> {surgery.surgeonName}</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="text-center py-6 sm:py-8 text-gray-400">
-                        <p className="text-sm sm:text-base">No surgeries scheduled</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+            <div className="text-center mt-8 text-gray-500 text-xm">
+              Powered by <a href="https://pom-agency.online" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400">pom-agency.online <Link size={12} className="inline-block" /></a>
+            </div>
+          </>
         ) : (
           <div className="bg-gray-800 rounded-lg shadow-2xl p-4 sm:p-6 text-white">
             <div className="mb-4 sm:mb-6">
