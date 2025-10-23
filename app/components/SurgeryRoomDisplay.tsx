@@ -159,26 +159,35 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
       <div className="max-w-full mx-auto pb-24 sm:pb-32">
         {/* Hospital Header */} 
         <div className="bg-white text-white p-3 sm:p-4 rounded-lg shadow-2xl mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 text-blue-900 sm:pl-6">Mansoura University</h1>
-              <p className="text-xl sm:text-2xl lg:text-3xl text-gray-600 sm:pl-6">Ophthalmology Center</p>
-            </div>
-            <div className="hidden sm:flex justify-center">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center overflow-hidden">
-                <Image
-                  src="/logo.png"
-                  alt="Logo"
-                  width={130}
-                  height={130}
-                  className="object-contain w-full h-full"
-                  priority
-                />
+          {/* Mobile Header */}
+          <div className="sm:hidden flex justify-between items-center">
+            <div className="text-left">
+              <h1 className="text-2xl font-bold text-blue-900">Mansoura University</h1>
+              <p className="text-xl text-gray-600">Ophthalmology Center</p>
+              <div className="mt-2">
+                <p className="text-lg font-bold text-blue-900">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                <p className="text-sm text-gray-600">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
               </div>
             </div>
-            <div className="text-center sm:text-right">
-              <p className="text-2xl sm:text-2xl lg:text-3xl font-bold text-blue-900 sm:pr-6">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-              <p className="text-sm sm:text-base lg:text-xl text-gray-600 sm:pr-6">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+            <div className="flex-shrink-0">
+              <Image src="/logo.png" alt="Logo" width={100} height={100} className="object-contain" priority />
+            </div>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden sm:flex justify-between items-center">
+            <div className="text-left">
+              <h1 className="text-3xl lg:text-4xl font-bold mb-2 text-blue-900 pl-6">Mansoura University</h1>
+              <p className="text-2xl lg:text-3xl text-gray-600 pl-6">Ophthalmology Center</p>
+            </div>
+            <div className="flex justify-center">
+              <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center overflow-hidden">
+                <Image src="/logo.png" alt="Logo" width={130} height={130} className="object-contain w-full h-full" priority />
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl lg:text-3xl font-bold text-blue-900 pr-6">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="text-base lg:text-xl text-gray-600 pr-6">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
             </div>
           </div>
         </div>
@@ -244,19 +253,28 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3 sm:gap-4">
             {rooms.filter(room => room).map(room => {
               const currentSurgery = getCurrentSurgery(room.surgeries);
+              const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
+              const completedSurgeriesInRoom = room.surgeries ? room.surgeries.filter(s => s.status === 'completed').length : 0;
+
               return (
                 <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
                   <div className={`bg-white text-white p-3 sm:p-4 flex justify-between items-center`}>
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-800">OR{room.id}</h2>
-                    {isAdmin && <button
-                      onClick={() => {
-                        setEditingRoom(room.id);
-                        setShowAddForm(true);
-                      }}
-                      className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg"
-                    >
-                      <Pencil size={18} className="sm:w-5 sm:h-5" />
-                    </button>}
+                    <div className="flex items-center gap-4">
+                      <div className="text-xs text-right text-gray-700">
+                        <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
+                        <p className='text-green-700 font-bold'>Completed: {completedSurgeriesInRoom}</p>
+                      </div>
+                      {isAdmin && <button
+                        onClick={() => {
+                          setEditingRoom(room.id);
+                          setShowAddForm(true);
+                        }}
+                        className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg bg-black"
+                      >
+                        <Pencil size={18} className="sm:w-5 sm:h-5" />
+                      </button>}
+                    </div>
                   </div>
                   
                   <div className="p-3 sm:p-4">
