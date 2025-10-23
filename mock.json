@@ -7,10 +7,11 @@
           {
             "id": 1678886400000,
             "patientName": "John Doe",
-            "date": "2025-10-26",
-            "time": "09:00",
-            "surgeryType": "Cataract Surgery",
-            "doctorName": "Dr. Smith",
+            "age": 45,
+            "dateTime": "2025-10-26T09:00:00.000Z",
+            "diagnosis": "Cataract",
+            "anesthesiaType": "Local",
+            "surgeonName": "Dr. Smith",
             "status": "scheduled",
             "roomId": 1,
             "timestamp": "2025-10-26T08:00:00.000Z"
@@ -18,10 +19,11 @@
           {
             "id": 1678890000000,
             "patientName": "Jane Smith",
-            "date": "2025-10-26",
-            "time": "10:00",
-            "surgeryType": "LASIK",
-            "doctorName": "Dr. Smith",
+            "age": 62,
+            "dateTime": "2025-10-26T10:00:00.000Z",
+            "diagnosis": "LASIK",
+            "anesthesiaType": "Topical",
+            "surgeonName": "Dr. Smith",
             "status": "scheduled",
             "roomId": 1,
             "timestamp": "2025-10-26T08:05:00.000Z"
@@ -35,10 +37,11 @@
           {
             "id": 1678893600000,
             "patientName": "Peter Jones",
-            "date": "2025-10-26",
-            "time": "11:00",
-            "surgeryType": "Retinal Detachment",
-            "doctorName": "Dr. Elara",
+            "age": 58,
+            "dateTime": "2025-10-26T11:00:00.000Z",
+            "diagnosis": "Retinal Detachment",
+            "anesthesiaType": "General",
+            "surgeonName": "Dr. Elara",
             "status": "scheduled",
             "roomId": 2,
             "timestamp": "2025-10-26T09:30:00.000Z"
@@ -61,13 +64,13 @@
         "surgeries": []
       },
       "6": {
-        "id": 5,
-        "color": "bg-pink-500",
+        "id": 6,
+        "color": "bg-teal-500",
         "surgeries": []
       },
       "7": {
-        "id": 5,
-        "color": "bg-pink-500",
+        "id": 7,
+        "color": "bg-indigo-500",
         "surgeries": []
       }
     },
@@ -75,10 +78,11 @@
       "1678886400000": {
         "id": 1678886400000,
         "patientName": "John Doe",
-        "date": "2025-10-26",
-        "time": "09:00",
-        "surgeryType": "Cataract Surgery",
-        "doctorName": "Dr. Smith",
+        "age": 45,
+        "dateTime": "2025-10-26T09:00:00.000Z",
+        "diagnosis": "Cataract",
+        "anesthesiaType": "Local",
+        "surgeonName": "Dr. Smith",
         "status": "scheduled",
         "roomId": 1,
         "timestamp": "2025-10-26T08:00:00.000Z"
@@ -86,10 +90,11 @@
       "1678890000000": {
         "id": 1678890000000,
         "patientName": "Jane Smith",
-        "date": "2025-10-26",
-        "time": "10:00",
-        "surgeryType": "LASIK",
-        "doctorName": "Dr. Smith",
+        "age": 62,
+        "dateTime": "2025-10-26T10:00:00.000Z",
+        "diagnosis": "LASIK",
+        "anesthesiaType": "Topical",
+        "surgeonName": "Dr. Smith",
         "status": "scheduled",
         "roomId": 1,
         "timestamp": "2025-10-26T08:05:00.000Z"
@@ -97,10 +102,11 @@
       "1678893600000": {
         "id": 1678893600000,
         "patientName": "Peter Jones",
-        "date": "2025-10-26",
-        "time": "11:00",
-        "surgeryType": "Retinal Detachment",
-        "doctorName": "Dr. Elara",
+        "age": 58,
+        "dateTime": "2025-10-26T11:00:00.000Z",
+        "diagnosis": "Retinal Detachment",
+        "anesthesiaType": "General",
+        "surgeonName": "Dr. Elara",
         "status": "scheduled",
         "roomId": 2,
         "timestamp": "2025-10-26T09:30:00.000Z"

@@ -1,26 +1,31 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, X, Clock, CheckCircle } from 'lucide-react';
+import { Search, Plus, X, Clock, CheckCircle, Pencil } from 'lucide-react';
 import Image from 'next/image';
 
 const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChange, handleRemoveSurgery, isAdmin }) => {
-  const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500'];
+  const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
   
   const [hospitalName, setHospitalName] = useState('Mansoura University');
   const [showSettings, setShowSettings] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportDate, setExportDate] = useState('');
+  const [exportEndDate, setExportEndDate] = useState('');
   const [editingRoom, setEditingRoom] = useState(null);
+  const [editingSurgery, setEditingSurgery] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   
   const [formData, setFormData] = useState({
     patientName: '',
-    date: '',
-    time: '',
-    surgeryType: '',
-    doctorName: ''
+    age: '',
+    dateTime: '',
+    diagnosis: '',
+    anesthesiaType: '',
+    surgeonName: ''
   });
 
   useEffect(() => {
@@ -32,9 +37,7 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
 
   const isCurrentSurgery = (surgery) => {
     const now = new Date();
-    const surgeryDate = new Date(surgery.date);
-    const [hours, minutes] = surgery.time.split(':');
-    surgeryDate.setHours(parseInt(hours), parseInt(minutes), 0);
+    const surgeryDate = new Date(surgery.dateTime);
     
     const isToday = surgeryDate.toDateString() === now.toDateString();
     const isTimeToStart = now >= surgeryDate;
@@ -55,10 +58,19 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
     return null;
   };
 
-  const getStatusColor = (surgery, currentSurgery) => {
-    if (surgery.status === 'completed') return 'bg-green-100 text-green-800 border-green-300';
-    if (currentSurgery && currentSurgery.id === surgery.id) return 'bg-red-100 text-red-800 border-red-300';
-    return 'bg-gray-100 text-gray-700 border-gray-300';
+  const getStatusColor = (surgery) => {
+    switch (surgery.status) {
+      case 'completed':
+        return 'bg-green-900 text-white-900 border-green-300';
+      case 'in-progress':
+        return 'bg-blue-900 text-white-900 border-blue-300';
+      case 'delayed':
+        return 'bg-red-900 text-white-800 border-red-300';
+      case 'scheduled':
+        return 'bg-orange-800 text-white-900 border-orange-300';
+      default:
+        return 'bg-gray-900 text-white-900 border-gray-300';
+    }
   };
 
   const handleInputChange = (e) => {
@@ -67,30 +79,84 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
   };
 
   const onAddSurgery = () => {
-    if (!formData.patientName || !formData.date || !formData.time || !formData.surgeryType || !formData.doctorName) {
+    if (!formData.patientName || !formData.age || !formData.dateTime || !formData.diagnosis || !formData.anesthesiaType || !formData.surgeonName) {
       alert('Please fill all fields');
       return;
     }
     handleAddSurgery(editingRoom, formData);
-    setFormData({ patientName: '', date: '', time: '', surgeryType: '', doctorName: '' });
+    setFormData({ patientName: '', age: '', dateTime: '', diagnosis: '', anesthesiaType: '', surgeonName: '' });
     setShowAddForm(false);
     setEditingRoom(null);
   }
 
+  const handleExport = () => {
+    if (!exportDate || !exportEndDate) {
+      alert('Please select a start and end date to export.');
+      return;
+    }
+
+    const startDate = new Date(exportDate);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(exportEndDate);
+    endDate.setHours(23, 59, 59, 999);
+
+    const surgeriesToExport = rooms
+      .filter(room => room)
+      .flatMap(room => room.surgeries || [])
+      .filter(surgery => {
+        const surgeryDate = new Date(surgery.dateTime);
+        return surgeryDate >= startDate && surgeryDate <= endDate;
+      });
+
+    if (surgeriesToExport.length === 0) {
+      alert('No surgeries found for the selected date range.');
+      return;
+    }
+
+    const headers = ['Patient Name', 'Age', 'Date/Time', 'Diagnosis', 'Anesthesia Type', 'Surgeon Name', 'Status', 'Room ID'];
+    const csvRows = [headers.join(',')];
+
+    surgeriesToExport.forEach(surgery => {
+      const row = [
+        `"${surgery.patientName}"`,
+        surgery.age,
+        `"${new Date(surgery.dateTime).toLocaleString()}"`,
+        `"${surgery.diagnosis}"`,
+        `"${surgery.anesthesiaType}"`,
+        `"${surgery.surgeonName}"`,
+        surgery.status,
+        surgery.roomId
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `surgeries_${exportDate}_to_${exportEndDate}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setShowExportModal(false);
+  };
+
   const filteredHistory = history.filter(record =>
     record.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.surgeryType.toLowerCase().includes(searchTerm.toLowerCase())
+    record.surgeonName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.diagnosis.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const todayString = new Date().toDateString();
-  const todaysSurgeries = rooms.filter(room => room).flatMap(room => room.surgeries || []).filter(surgery => new Date(surgery.date).toDateString() === todayString);
+  const todaysSurgeries = rooms.filter(room => room).flatMap(room => room.surgeries || []).filter(surgery => new Date(surgery.dateTime).toDateString() === todayString);
   const totalToday = todaysSurgeries.length;
   const totalCompletedToday = todaysSurgeries.filter(s => s.status === 'completed').length;
 
   return (
     <div className="min-h-screen bg-gray-900 p-4">
-      <div className="max-w-full mx-auto">
+      <div className="max-w-full mx-auto pb-32">
         {/* Hospital Header */} 
         <div className="bg-white  text-white p-4 rounded-lg shadow-2xl mb-6">
           <div className="flex justify-between items-center">
@@ -129,10 +195,10 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
         <div className="flex justify-end gap-3 mb-6">
           {isAdmin && (<>
             <button
-              onClick={() => setShowSettings(!showSettings)}
+              onClick={() => setShowExportModal(!showExportModal)}
               className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-lg font-medium"
             >
-              Settings
+              Export to Excel
             </button>
             <button
               onClick={() => setShowHistory(!showHistory)}
@@ -144,17 +210,41 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
           </>)}
         </div>
 
-        {showSettings && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-6 text-white">
-            <h3 className="text-2xl font-bold mb-4">Settings</h3>
-            <div className="mb-4">
-              <label className="block text-lg font-medium mb-2">Hospital Name</label>
-              <input
-                type="text"
-                value={hospitalName}
-                onChange={(e) => setHospitalName(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
-              />
+        {showExportModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md text-white">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-3xl font-bold">Export to Excel</h3>
+                <button onClick={() => setShowExportModal(false)} className="text-gray-400 hover:text-white">
+                  <X size={32} />
+                </button>
+              </div>
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-lg font-medium mb-2">From</label>
+                  <input
+                    type="date"
+                    value={exportDate}
+                    onChange={(e) => setExportDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-lg font-medium mb-2">To</label>
+                  <input
+                    type="date"
+                    value={exportEndDate}
+                    onChange={(e) => setExportEndDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
+                  />
+                </div>
+                <button
+                  onClick={handleExport}
+                  className="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-xl font-medium"
+                >
+                  Export
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -166,15 +256,15 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
               return (
                 <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
                   <div className={`${room.color} text-white p-4 flex justify-between items-center`}>
-                    <h2 className="text-2xl font-bold">Surgery {room.id}</h2>
+                    <h2 className="text-2xl font-bold">OR{room.id}</h2>
                     {isAdmin && <button
                       onClick={() => {
                         setEditingRoom(room.id);
                         setShowAddForm(true);
                       }}
-                      className="bg-white bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg"
+                      className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg"
                     >
-                      <Plus size={20} />
+                      <Pencil size={20} />
                     </button>}
                   </div>
                   
@@ -187,40 +277,35 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
                             <div key={surgery.id} className={`border-2 rounded-lg p-3 ${getStatusColor(surgery, currentSurgery)}`}>
                               <div className="flex justify-between items-start mb-2">
                                 <div className="flex-1">
-                                  <p className="font-bold text-lg">{surgery.patientName}</p>
+                                  <p className="font-bold text-lg">{surgery.patientName} ({surgery.age})</p>
                                   <p className="text-sm flex items-center gap-1 mt-1">
                                     <Clock size={14} />
-                                    {surgery.time}
+                                    {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </p>
                                 </div>
-                                {isAdmin && <button
-                                  onClick={() => handleRemoveSurgery(room.id, surgery.id)}
-                                  className="text-gray-400 hover:text-red-500"
-                                >
-                                  <X size={16} />
-                                </button>}
+                                {isAdmin && <div className="flex flex-col gap-2">
+                                  <button
+                                    onClick={() => handleRemoveSurgery(room.id, surgery.id)}
+                                    className="text-gray-400 hover:text-red-500"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingSurgery(surgery)}
+                                    className="text-gray-400 hover:text-blue-500"
+                                  >
+                                    <Pencil size={16} />
+                                  </button>
+                                </div>}
                               </div>
                               
                               <div className="text-sm space-y-1 mb-2">
-                                <p className="truncate"><span className="font-medium">Surgery:</span> {surgery.surgeryType}</p>
-                                <p className="truncate"><span className="font-medium">Doctor:</span> {surgery.doctorName}</p>
+                                <p><span className="font-medium">Diagnosis:</span> {surgery.diagnosis}</p>
+                                <p><span className="font-medium">Anesthesia:</span> {surgery.anesthesiaType}</p>
+                                <p><span className="font-medium">Surgeon:</span> {surgery.surgeonName}</p>
                               </div>
                               
                               <div className="flex gap-2">
-                                {isAdmin && surgery.status === 'scheduled' && isCurrent && (
-                                  <button
-                                    onClick={() => handleStatusChange(room.id, surgery.id, 'completed')}
-                                    className="flex-1 px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 flex items-center justify-center gap-1 font-medium"
-                                  >
-                                    <CheckCircle size={12} />
-                                    Complete
-                                  </button>
-                                )}
-                                {surgery.status === 'completed' && (
-                                  <span className="flex-1 px-2 py-1 bg-green-600 text-white rounded text-xs text-center font-medium">
-                                    ✓ Done
-                                  </span>
-                                )}
                               </div>
                             </div>
                           );
@@ -241,7 +326,7 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
             <div className="mb-6">
               <input
                 type="text"
-                placeholder="Search by patient name, doctor, or surgery type..."
+                placeholder="Search by patient name, surgeon, or diagnosis..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-6 py-4 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
@@ -252,12 +337,11 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
               <table className="w-full">
                 <thead className="bg-gray-700 border-b border-gray-600">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Surgery</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Room</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Patient</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Date</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Time</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Surgery</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Doctor</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Date/Time</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Diagnosis</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Surgeon</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300 uppercase">Status</th>
                   </tr>
                 </thead>
@@ -268,13 +352,12 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
                         <span className={`inline-block w-4 h-4 rounded-full ${roomColors[record.roomId - 1]}`}></span>
                         <span className="ml-2 text-lg">{record.roomId}</span>
                       </td>
-                      <td className="px-6 py-4 font-medium text-lg">{record.patientName}</td>
-                      <td className="px-6 py-4 text-lg">{record.date}</td>
-                      <td className="px-6 py-4 text-lg">{record.time}</td>
-                      <td className="px-6 py-4 text-lg">{record.surgeryType}</td>
-                      <td className="px-6 py-4 text-lg">{record.doctorName}</td>
+                      <td className="px-6 py-4 font-medium text-lg">{record.patientName} ({record.age})</td>
+                      <td className="px-6 py-4 text-lg">{new Date(record.dateTime).toLocaleString()}</td>
+                      <td className="px-6 py-4 text-lg">{record.diagnosis}</td>
+                      <td className="px-6 py-4 text-lg">{record.surgeonName}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded text-sm ${record.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-red-00 text-gray-800'}`}>
+                        <span className={`px-3 py-1 rounded text-sm ${record.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                           {record.status}
                         </span>
                       </td>
@@ -295,72 +378,42 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-800 rounded-lg p-8 w-full max-w-2xl text-white">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-3xl font-bold">Add Surgery - Surgery {editingRoom}</h3>
+                <h3 className="text-3xl font-bold">Add Surgery - Room {editingRoom}</h3>
                 <button onClick={() => {
                   setShowAddForm(false);
                   setEditingRoom(null);
-                  setFormData({ patientName: '', date: '', time: '', surgeryType: '', doctorName: '' });
+                  setFormData({ patientName: '', age: '', dateTime: '', diagnosis: '', anesthesiaType: '', surgeonName: '' });
                 }} className="text-gray-400 hover:text-white">
                   <X size={32} />
                 </button>
               </div>
               
               <div className="space-y-5">
-                <div>
-                  <label className="block text-lg font-medium mb-2">Patient Name</label>
-                  <input
-                    type="text"
-                    name="patientName"
-                    value={formData.patientName}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
-                  />
-                </div>
-                
                 <div className="grid grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-lg font-medium mb-2">Date</label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={formData.date}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
-                    />
+                    <label className="block text-lg font-medium mb-2">Patient Name</label>
+                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
                   </div>
-                  
                   <div>
-                    <label className="block text-lg font-medium mb-2">Time</label>
-                    <input
-                      type="time"
-                      name="time"
-                      value={formData.time}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
-                    />
+                    <label className="block text-lg font-medium mb-2">Age</label>
+                    <input type="number" name="age" value={formData.age} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
                   </div>
                 </div>
-                
                 <div>
-                  <label className="block text-lg font-medium mb-2">Surgery Type</label>
-                  <input
-                    type="text"
-                    name="surgeryType"
-                    value={formData.surgeryType}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
-                  />
+                  <label className="block text-lg font-medium mb-2">Date/Time</label>
+                  <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
                 </div>
-                
                 <div>
-                  <label className="block text-lg font-medium mb-2">Doctor Name</label>
-                  <input
-                    type="text"
-                    name="doctorName"
-                    value={formData.doctorName}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
-                  />
+                  <label className="block text-lg font-medium mb-2">Diagnosis</label>
+                  <input type="text" name="diagnosis" value={formData.diagnosis} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                </div>
+                <div>
+                  <label className="block text-lg font-medium mb-2">Anesthesia Type</label>
+                  <input type="text" name="anesthesiaType" value={formData.anesthesiaType} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
+                </div>
+                <div>
+                  <label className="block text-lg font-medium mb-2">Surgeon Name</label>
+                  <input type="text" name="surgeonName" value={formData.surgeonName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg" />
                 </div>
                 
                 <button
@@ -370,6 +423,32 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
                   <Plus size={24} />
                   Add Surgery
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {editingSurgery && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md text-white">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-3xl font-bold">Update Status</h3>
+                <button onClick={() => setEditingSurgery(null)} className="text-gray-400 hover:text-white">
+                  <X size={32} />
+                </button>
+              </div>
+              <div className="space-y-5">
+                <p>Patient: {editingSurgery.patientName}</p>
+                <select 
+                  onChange={(e) => handleStatusChange(editingSurgery.roomId, editingSurgery.id, e.target.value)}
+                  defaultValue={editingSurgery.status}
+                  className="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-lg"
+                >
+                  <option value="scheduled">Waiting</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="delayed">Delayed</option>
+                </select>
               </div>
             </div>
           </div>
@@ -389,18 +468,22 @@ const SurgeryRoomDisplay = ({ rooms, history, handleAddSurgery, handleStatusChan
               <span className="text-3xl text-green-500  font-bold">{totalCompletedToday}</span>
             </div>
           </div>
-          <div className="flex gap-6 text-lg">
+          <div className="flex gap-6 text-lg pr-15">
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 bg-red-100 border-2 border-red-300 rounded"></span>
-              <span>In Progress</span>
+              <span className="w-5 h-5 bg-orange-700 border-2 border-orange-700 rounded"></span>
+              <span>Waiting</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 bg-green-100 border-2 border-green-300 rounded"></span>
+              <span className="w-5 h-5 bg-red-700 border-2 border-red-700 rounded"></span>
+              <span>Delayed</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 bg-green-700 border-2 border-green-700 rounded"></span>
               <span>Completed</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 bg-gray-100 border-2 border-gray-300 rounded"></span>
-              <span>Scheduled</span>
+              <span className="w-5 h-5 bg-blue-700 border-2 border-blue-700 rounded"></span>
+              <span>In Progress</span>
             </div>
           </div>
         </div>

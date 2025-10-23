@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const room = snapshot.val();
 
     const updatedSurgeries = [...(room.surgeries || []), newSurgery].sort((a, b) =>
-      a.time.localeCompare(b.time)
+      new Date(a.dateTime) - new Date(b.dateTime)
     );
 
     await roomRef.child('surgeries').set(updatedSurgeries);
