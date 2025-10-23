@@ -327,7 +327,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                 );
               })}
             </div>
-            <div className="text-center mt-8 text-gray-500 text-xm">
+            <div className="text-center pt-5 text-gray-500 text-xm pb-5">
               Powered by <a href="https://pom-agency.online" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400">pom-agency.online <Link size={12} className="inline-block" /></a>
             </div>
           </>
