@@ -246,8 +246,8 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               const currentSurgery = getCurrentSurgery(room.surgeries);
               return (
                 <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
-                  <div className={`${room.color} text-white p-3 sm:p-4 flex justify-between items-center`}>
-                    <h2 className="text-xl sm:text-2xl font-bold">OR{room.id}</h2>
+                  <div className={`bg-white text-white p-3 sm:p-4 flex justify-between items-center`}>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800">OR{room.id}</h2>
                     {isAdmin && <button
                       onClick={() => {
                         setEditingRoom(room.id);
