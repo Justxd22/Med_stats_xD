@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, X, Clock, CheckCircle, Pencil, Link } from 'lucide-react';
 import Image from 'next/image';
 
-const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = () => {}, handleRemoveSurgery = () => {}, isAdmin = true }) => {
-  const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
+const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, isAdmin = true }) => {
+  const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
   
   const [hospitalName, setHospitalName] = useState('Mansoura University');
   const [showSettings, setShowSettings] = useState(false);
@@ -67,7 +67,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
       case 'delayed':
         return 'bg-red-900 text-white-800 border-red-300';
       case 'scheduled':
-        return 'bg-orange-800 text-white-900 border-orange-300';
+        return 'bg-[#E0C255] text-black border-yellow-300';
       default:
         return 'bg-gray-900 text-white-900 border-gray-300';
     }
@@ -157,7 +157,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     <div className="min-h-screen bg-gray-900 p-2 sm:p-4">
       <div className="max-w-full mx-auto pb-24 sm:pb-32">
         {/* Hospital Header */} 
-        <div className="bg-white text-white p-3 sm:p-4 rounded-lg shadow-2xl mb-4 sm:mb-6">
+        <div className="bg-white text-white p-2 rounded-lg shadow-2xl mb-4">
           {/* Mobile Header */}
           <div className="sm:hidden flex justify-between items-center">
             <div className="text-left">
@@ -174,19 +174,19 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
           </div>
 
           {/* Desktop Header */}
-          <div className="hidden sm:flex justify-between items-center">
+          <div className="hidden sm:flex justify-between items-center p-2">
             <div className="text-left">
-              <h1 className="text-3xl lg:text-4xl font-bold mb-2 text-blue-900 pl-6">Mansoura University</h1>
-              <p className="text-2xl lg:text-3xl text-gray-600 pl-6">Ophthalmology Center</p>
+              <h1 className="text-2xl font-bold text-4xl text-blue-900 pl-4">Mansoura University</h1>
+              <p className="text-2xl text-gray-600 pl-4">Ophthalmology Center</p>
             </div>
             <div className="flex justify-center relative left-[-80px]">
-              <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center overflow-hidden">
-                <Image src="/logo.png" alt="Logo" width={130} height={130} className="object-contain w-full h-full" priority />
+              <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden">
+                <Image src="/logo.png" alt="Logo" width={100} height={100} className="object-contain w-full h-full" priority />
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl lg:text-3xl font-bold text-blue-900 pr-6">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-              <p className="text-base lg:text-xl text-gray-600 pr-6">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+              <p className="text-4xl font-bold text-blue-900 pr-4">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="text-xl text-gray-600 pr-4">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
             </div>
           </div>
         </div>
@@ -259,7 +259,18 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                 return (
                   <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
                     <div className={`bg-white text-white p-3 sm:p-4 flex justify-between items-center`}>
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-800">OR{room.id}</h2>
+                      <h2
+                        className={`font-bold text-gray-800 ${room.id === 6
+                            ? "text-lg sm:text-xl"
+                            : "text-xl sm:text-2xl"
+                          }`}
+                      >
+                        {room.id === 6
+                          ? "Injection"
+                          : room.id === 7
+                            ? "ICU"
+                            : `OR${room.id}`}
+                      </h2>
                       <div className="flex items-center gap-4">
                         <div className="text-xs text-right text-gray-700">
                           <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
@@ -292,6 +303,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                       {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                   </div>
+
                                   {isAdmin && <div className="flex flex-col gap-2">
                                     <button
                                       onClick={() => handleRemoveSurgery(room.id, surgery.id)}
@@ -299,19 +311,24 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                     >
                                       <X size={14} className="sm:w-4 sm:h-4" />
                                     </button>
-                                    <button
-                                      onClick={() => setEditingSurgery(surgery)}
-                                      className="text-gray-400 hover:text-blue-500"
-                                    >
-                                      <Pencil size={14} className="sm:w-4 sm:h-4" />
-                                    </button>
                                   </div>}
+
                                 </div>
                                 
                                 <div className="text-xs sm:text-sm space-y-1 mb-2">
                                   <p><span className="font-medium">Diagnosis:</span> {surgery.diagnosis}</p>
                                   <p><span className="font-medium">Anesthesia:</span> {surgery.anesthesiaType}</p>
                                   <p><span className="font-medium">Surgeon:</span> {surgery.surgeonName}</p>
+                                </div>
+
+
+                                <div className="flex justify-end">
+                                  <button
+                                    onClick={() => setEditingSurgery(surgery)}
+                                    className="text-gray-400 hover:text-blue-500"
+                                  >
+                                    <Pencil size={14} className="sm:w-4 sm:h-4" />
+                                  </button>
                                 </div>
                               </div>
                             );
@@ -438,31 +455,45 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
           </div>
         )}
 
-        {editingSurgery && (
-          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-md text-white">
-              <div className="flex justify-between items-center mb-4 sm:mb-6">
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold">Update Status</h3>
-                <button onClick={() => setEditingSurgery(null)} className="text-gray-400 hover:text-white">
-                  <X size={24} className="sm:w-8 sm:h-8" />
-                </button>
-              </div>
-              <div className="space-y-4 sm:space-y-5">
-                <p className="text-sm sm:text-base">Patient: {editingSurgery.patientName}</p>
-                <select 
-                  onChange={(e) => handleStatusChange(editingSurgery.roomId, editingSurgery.id, e.target.value)}
-                  defaultValue={editingSurgery.status}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg"
-                >
-                  <option value="scheduled">Waiting</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="delayed">Delayed</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
+{editingSurgery && (
+  <div className="fixed inset-0 bg-black/20 bg-opacity-70 backdrop-blur flex items-center justify-center z-50 p-4">
+    <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-md text-white">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold">Update Status</h3>
+        <button
+          onClick={() => setEditingSurgery(null)}
+          className="text-gray-400 hover:text-white"
+        >
+          <X size={24} className="sm:w-8 sm:h-8" />
+        </button>
+      </div>
+
+      <div className="space-y-4 sm:space-y-5">
+        <p className="text-sm sm:text-base">
+          Patient: {editingSurgery.patientName}
+        </p>
+        <select
+          onChange={(e) => {
+            handleStatusChange(
+              editingSurgery.roomId,
+              editingSurgery.id,
+              e.target.value
+            );
+            setEditingSurgery(null); // 👈 Close modal automatically
+          }}
+          defaultValue={editingSurgery.status}
+          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg"
+        >
+          <option value="scheduled">Waiting</option>
+          <option value="in-progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="delayed">Delayed</option>
+        </select>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
 
       {/* Bottom Info Bar */}
@@ -480,7 +511,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
           </div>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base pr-15">
             <div className="flex items-center gap-1 sm:gap-2">
-              <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-orange-700 border-2 border-orange-700 rounded"></span>
+              <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-[#E0C255] border-2 border-[#E0C255] rounded"></span>
               <span>Waiting</span>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
