@@ -130,6 +130,18 @@ const ViewerPage = () => {
     }
   };
 
+  const handleStatusChange = async (roomId, surgeryId, newStatus) => {
+    try {
+      await fetch(`/api/surgeries/${surgeryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId, newStatus }),
+      });
+    } catch (error) {
+      console.error('Failed to update surgery', error);
+    }
+  };
+
   return (
     <SurgeryRoomDisplay 
       rooms={rooms}
@@ -137,6 +149,7 @@ const ViewerPage = () => {
       isAdmin={false}
       displayDate={displayDate}
       handleMoveSurgery={handleMoveSurgery}
+      handleStatusChange={handleStatusChange}
       handlePrevDay={handlePrevDay}
       handleNextDay={handleNextDay}
       isToday={isToday}

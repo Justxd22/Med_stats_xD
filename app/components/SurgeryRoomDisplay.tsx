@@ -198,7 +198,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               <h1 className="text-2xl font-bold text-4xl text-blue-900 pl-4">Mansoura University</h1>
               <p className="text-2xl text-gray-600 pl-4">Ophthalmology Center</p>
             </div>
-            <div className="flex justify-center relative left-[-80px]">
+            <div className="flex justify-center relative left-[-40px]">
               <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden">
                 <Image src="/logo.png" alt="Logo" width={100} height={100} className="object-contain w-full h-full" priority />
               </div>
