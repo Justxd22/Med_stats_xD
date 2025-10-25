@@ -179,12 +179,20 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
         <div className="bg-white text-white p-2 rounded-lg shadow-2xl mb-4">
           {/* Mobile Header */}
           <div className="sm:hidden flex justify-between items-center">
-            <div className="text-left">
+            <div className="text-left flex-1">
               <h1 className="text-2xl font-bold text-blue-900">Mansoura University</h1>
               <p className="text-xl text-gray-600">Ophthalmology Center</p>
-              <div className="mt-2">
-                <p className="text-lg font-bold text-blue-900">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-                <p className="text-sm text-gray-600">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <button onClick={handlePrevDay} className="p-1 rounded-full hover:bg-gray-200 transition">
+                  <ChevronLeft size={24} className="text-gray-700" />
+                </button>
+                <div>
+                  <p className="text-lg font-bold text-blue-900 text-center">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                  <p className="text-sm text-gray-600">{displayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+                </div>
+                <button onClick={handleNextDay} className="p-1 rounded-full hover:bg-gray-200 transition disabled:opacity-50">
+                  <ChevronRight size={24} className="text-gray-700" />
+                </button>
               </div>
             </div>
             <div className="flex-shrink-0">
