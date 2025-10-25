@@ -35,8 +35,12 @@ export async function POST(request: Request) {
       roomId,
       status: 'scheduled',
       timestamp: new Date().toISOString(),
-      dateTime: surgeryDateTime.toISOString(), // Store as ISO string for Realtime DB
     };
+
+    // Add the new fields to the surgery object
+    if (surgeryData.gender) newSurgery.gender = surgeryData.gender;
+    if (surgeryData.dob) newSurgery.dob = surgeryData.dob;
+    if (surgeryData.age) newSurgery.age = surgeryData.age;
 
     // Write to Realtime DB for live view
     const roomRef = db.ref(`rooms/${roomId}`);

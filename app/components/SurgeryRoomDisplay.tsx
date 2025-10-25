@@ -1,15 +1,49 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, X, Clock, CheckCircle, Pencil, Link, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, X, Clock, CheckCircle, Pencil, Link, ChevronLeft, ChevronRight, User, Cake } from 'lucide-react';
 import Image from 'next/image';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+// --- National ID Parser Utility ---
+const parseNationalId = (id) => {
+  if (!id || id.length !== 14) {
+    return null;
+  }
+  try {
+    const century = parseInt(id.substring(0, 1), 10);
+    const year = parseInt(id.substring(1, 3), 10);
+    const month = parseInt(id.substring(3, 5), 10);
+    const day = parseInt(id.substring(5, 7), 10);
+    const genderDigit = parseInt(id.substring(12, 13), 10);
+
+    const birthYear = (century === 2 ? 1900 : 2000) + year;
+
+    const dob = new Date(birthYear, month - 1, day);
+    if (isNaN(dob.getTime())) return null; // Invalid date
+
+    const age = new Date().getFullYear() - dob.getFullYear();
+    const gender = genderDigit % 2 !== 0 ? 'Male' : 'Female';
+
+    return { dob: dob.toLocaleDateString(), age, gender };
+  } catch (e) {
+    return null;
+  }
+};
 
 const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true, displayDate = new Date(), handlePrevDay = () => {}, handleNextDay = () => {}, isToday = true }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
   
+  // --- Placeholder Data ---
+  const operationData = {
+    'Cataract': ['Phacoemulsification', 'SICS', 'ECCE'],
+    'Glaucoma': ['Trabeculectomy', 'Ahmed Valve', 'Paul Valve'],
+    'Retina': ['Vitrectomy', 'Retinal Detachment Repair', 'Macular Hole Surgery'],
+  };
+  const operationCollections = Object.keys(operationData);
+  // ---
+
   const [hospitalName, setHospitalName] = useState('Mansoura University');
-  const [showSettings, setShowSettings] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportDate, setExportDate] = useState('');
@@ -19,15 +53,49 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
   const [searchTerm, setSearchTerm] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [nationalIdError, setNationalIdError] = useState('');
   
   const [formData, setFormData] = useState({
     patientName: '',
-    age: '',
+    nationalId: '',
     dateTime: '',
-    diagnosis: '',
-    anesthesiaType: '',
-    surgeonName: ''
+    anesthesiaType: 'Local', // Default value
+    surgeonName: '',
+    operationCollection: '',
+    operationName: '',
+    eye: 'Left Eye', // Default value
+    // Derived from nationalId
+    dob: null,
+    age: null,
+    gender: null,
   });
+
+  // Effect to parse National ID
+  useEffect(() => {
+    const id = formData.nationalId;
+    if (!id) {
+      setNationalIdError('');
+      return;
+    }
+
+    if (!/^[0-9]+$/.test(id)) {
+      setNationalIdError('National ID must contain only numbers.');
+      return;
+    }
+
+    if (id.length !== 14) {
+      setNationalIdError('National ID must be 14 digits long.');
+      return;
+    }
+
+    const idInfo = parseNationalId(id);
+    if (idInfo) {
+      setFormData(prev => ({ ...prev, ...idInfo }));
+      setNationalIdError('');
+    } else {
+      setNationalIdError('Invalid National ID format.');
+    }
+  }, [formData.nationalId]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,12 +148,21 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
   };
 
   const onAddSurgery = () => {
-    if (!formData.patientName || !formData.age || !formData.dateTime || !formData.diagnosis || !formData.anesthesiaType || !formData.surgeonName) {
+    if (!formData.patientName || !formData.nationalId || !formData.dateTime || !formData.anesthesiaType || !formData.surgeonName || !formData.operationCollection || !formData.operationName || !formData.eye) {
       alert('Please fill all fields');
       return;
     }
     handleAddSurgery(editingRoom, formData);
-    setFormData({ patientName: '', age: '', dateTime: '', diagnosis: '', anesthesiaType: '', surgeonName: '' });
+    setFormData({
+      patientName: '',
+      nationalId: '',
+      dateTime: '',
+      anesthesiaType: 'Local',
+      surgeonName: '',
+      operationCollection: '',
+      operationName: '',
+      eye: 'Left Eye',
+    });
     setShowAddForm(false);
     setEditingRoom(null);
   }
@@ -459,51 +536,105 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
 
         {showAddForm && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-2xl text-white max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4 sm:mb-6">
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold">Add Surgery - Room {editingRoom}</h3>
-                <button onClick={() => {
-                  setShowAddForm(false);
-                  setEditingRoom(null);
-                  setFormData({ patientName: '', age: '', dateTime: '', diagnosis: '', anesthesiaType: '', surgeonName: '' });
-                }} className="text-gray-400 hover:text-white">
-                  <X size={24} className="sm:w-8 sm:h-8" />
+            <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-3xl text-white max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold">Add Surgery - Room {editingRoom}</h3>
+                <button onClick={() => setShowAddForm(false)} className="text-gray-400 hover:text-white">
+                  <X size={28} />
                 </button>
               </div>
               
-              <div className="space-y-4 sm:space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+              <div className="space-y-5">
+                {/* Patient Info */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Patient Name</label>
-                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
+                    <label className="block font-medium mb-2">Patient Name</label>
+                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
                   </div>
                   <div>
-                    <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Age</label>
-                    <input type="number" name="age" value={formData.age} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
+                    <label className="block font-medium mb-2">National ID</label>
+                    <input type="text" name="nationalId" value={formData.nationalId} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                    {nationalIdError && <p className="text-red-500 text-sm mt-1">{nationalIdError}</p>}
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Date/Time</label>
-                  <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
+
+                {/* Anesthesia Type & Parsed ID Info */}
+                <div className="flex items-start gap-5">
+                  <div className="pr-32">
+                    <label className="block font-medium mb-2">Anesthesia Type</label>
+                    <div className="flex gap-3">
+                      {['Local', 'General'].map(type => (
+                        <button key={type} onClick={() => setFormData({...formData, anesthesiaType: type})} className={`px-6 py-3 rounded-lg text-lg transition ${formData.anesthesiaType === type ? 'bg-blue-600 text-white' : 'bg-gray-700'}`}>
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {formData.age !== null && (
+                    <div className="bg-gray-700 p-4 rounded-lg flex items-center gap-6">
+                      <div className="text-center">
+                        <User size={28} className={formData.gender === 'Male' ? 'text-blue-400' : 'text-pink-400'} />
+                        <p className="text-sm font-bold">{formData.gender}</p>
+                      </div>
+                      <div className="text-center">
+                        <Cake size={28} className="text-gray-400" />
+                        <p className="text-sm">{formData.dob}</p>
+                      </div>
+                       <div className="text-center">
+                        <p className="text-3xl font-bold">{formData.age}</p>
+                        <p className="text-sm">Years</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Diagnosis</label>
-                  <input type="text" name="diagnosis" value={formData.diagnosis} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
+
+                {/* Operation Type - Stage 1 & 2 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block font-medium mb-2">Operation Collection</label>
+                    <select name="operationCollection" value={formData.operationCollection} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg">
+                      <option value="" disabled>Select Collection</option>
+                      {operationCollections.map(collection => (
+                        <option key={collection} value={collection}>{collection}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-2">Operation Name</label>
+                    <select name="operationName" value={formData.operationName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled={!formData.operationCollection}>
+                      <option value="" disabled>Select Name</option>
+                      {formData.operationCollection && operationData[formData.operationCollection].map(name => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+
+                {/* Operation Type - Stage 3 */}
                 <div>
-                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Anesthesia Type</label>
-                  <input type="text" name="anesthesiaType" value={formData.anesthesiaType} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
+                  <label className="block font-medium mb-2">Eye</label>
+                  <div className="flex gap-3">
+                    {['Left Eye', 'Right Eye', 'Bilateral Eye'].map(eye => (
+                      <button key={eye} onClick={() => setFormData({...formData, eye: eye})} className={`px-6 py-3 rounded-lg text-lg transition ${formData.eye === eye ? 'bg-blue-600 text-white' : 'bg-gray-700'} disabled:opacity-50 disabled:cursor-not-allowed`} disabled={!formData.operationCollection}>
+                        {eye}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm sm:text-base lg:text-lg font-medium mb-2">Surgeon Name</label>
-                  <input type="text" name="surgeonName" value={formData.surgeonName} onChange={handleInputChange} className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-sm sm:text-base lg:text-lg" />
+
+                {/* Surgeon and DateTime */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block font-medium mb-2">Surgeon Name</label>
+                    <input type="text" name="surgeonName" value={formData.surgeonName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-2">Date/Time</label>
+                    <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                  </div>
                 </div>
                 
-                <button
-                  onClick={onAddSurgery}
-                  className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-base sm:text-lg lg:text-xl font-medium"
-                >
-                  <Plus size={20} className="sm:w-6 sm:h-6" />
+                <button onClick={onAddSurgery} className="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 text-xl font-medium">
                   Add Surgery
                 </button>
               </div>
