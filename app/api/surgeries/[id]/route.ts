@@ -28,7 +28,7 @@ export async function PUT(request: Request, context: { params: { id: string } })
 export async function DELETE(request: Request, context: { params: { id: string } }) {
   try {
     const { roomId } = await request.json();
-    const surgeryId = context.params.id;
+    const surgeryId = await context.params.id;
 
     // Update Realtime DB
     const roomRef = db.ref(`rooms/${roomId}`);
