@@ -63,11 +63,26 @@ const ViewerPage = () => {
     }
   };
 
+
+  const handleMoveSurgery = async (surgeryId, sourceRoomId, destinationRoomId) => {
+    try {
+      await fetch('/api/surgeries/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ surgeryId, sourceRoomId, destinationRoomId }),
+      });
+      fetchData(); // Refetch data after moving
+    } catch (error) {
+      console.error('Failed to move surgery', error);
+    }
+  };
+
   return (
     <SurgeryRoomDisplay 
       rooms={rooms}
       history={history}
       handleStatusChange={handleStatusChange}
+      handleMoveSurgery={handleMoveSurgery}
       isAdmin={false}
     />
   );

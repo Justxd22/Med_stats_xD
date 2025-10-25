@@ -73,6 +73,19 @@ const AdminPage = () => {
     }
   };
 
+  const handleMoveSurgery = async (surgeryId, sourceRoomId, destinationRoomId) => {
+    try {
+      await fetch('/api/surgeries/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ surgeryId, sourceRoomId, destinationRoomId }),
+      });
+      fetchData(); // Refetch data after moving
+    } catch (error) {
+      console.error('Failed to move surgery', error);
+    }
+  };
+
   return (
     <SurgeryRoomDisplay 
       rooms={rooms}
@@ -80,6 +93,7 @@ const AdminPage = () => {
       handleAddSurgery={handleAddSurgery}
       handleStatusChange={handleStatusChange}
       handleRemoveSurgery={handleRemoveSurgery}
+      handleMoveSurgery={handleMoveSurgery}
       isAdmin={true}
     />
   );
