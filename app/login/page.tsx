@@ -21,7 +21,7 @@ const LoginPage = () => {
       if (res.ok) {
         const data = await res.json();
         console.log("REDIITITEECCTTTT")
-        router.push('/viewer');
+        router.push(data.redirectPath);
       } else {
         const data = await res.json();
         setError(data.error || 'Invalid password');
