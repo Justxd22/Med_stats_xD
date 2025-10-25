@@ -543,8 +543,8 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
 
       {/* Bottom Info Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white text-gray-900 p-3 sm:p-4 shadow-lg border-t-2 border-gray-200">
-        <div className="max-w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex gap-4 sm:gap-8 text-xs sm:text-sm pl-15">
+        <div className="max-w-full mx-auto flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-4">
+          <div className="flex gap-4 sm:gap-8 text-xs sm:text-sm sm:pl-15">
             <div className="flex flex-col items-center text-gray-900 font-bold">
               <p>Total Operations</p>
               <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 font-bold">{totalOperations}</span>
@@ -558,7 +558,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               <span className="text-xl sm:text-2xl lg:text-3xl text-green-500 font-bold">{totalCompleted}</span>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base pr-15">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base sm:pr-15">
             <div className="flex items-center gap-1 sm:gap-2">
               <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-[#E0C255] border-2 border-[#E0C255] rounded"></span>
               <span>Waiting</span>
