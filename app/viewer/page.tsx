@@ -34,7 +34,7 @@ const ViewerPage = () => {
         .then(data => {
           if (data) {
             const todayString = toYYYYMMDD(new Date());
-            const filteredRooms = Object.values(data).map((room: any) => {
+            const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
                 if (room.surgeries) {
                     room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
                 }
