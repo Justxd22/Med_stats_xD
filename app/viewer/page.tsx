@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SurgeryRoomDisplay from '../components/SurgeryRoomDisplay';
 import { database } from '../../lib/firebase';
 import { ref, onValue, off } from 'firebase/database';
@@ -14,25 +14,24 @@ const ViewerPage = () => {
   const [rooms, setRooms] = useState([]);
   const [history, setHistory] = useState([]);
   const [displayDate, setDisplayDate] = useState(new Date());
+  const inactivityTimerRef = useRef(null);
 
   const isToday = toYYYYMMDD(new Date()) === toYYYYMMDD(displayDate);
 
+
+  const resetToToday = useCallback(() => {
+    setDisplayDate(new Date());
+  }, []);
+
+  const resetInactivityTimer = useCallback(() => {
+    console.log('movvvv', inactivityTimerRef.current)
+    clearTimeout(inactivityTimerRef.current);
+    if (!isToday) {
+      inactivityTimerRef.current = setTimeout(resetToToday, 5000); // 5 seconds
+    }
+  }, [isToday, resetToToday]);
+
   useEffect(() => {
-    let activityTimer;
-    let debounceTimer;
-    const roomsRef = ref(database, 'rooms');
-
-    const scheduleRedirect = () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        if (!isToday) {
-          activityTimer = setTimeout(() => {
-            setDisplayDate(new Date());
-          }, 5000); // 5-second redirect
-        }
-      }, 2000); // 2-second settle time
-    };
-
     const fetchArchivedData = (date) => {
       fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
         .then(res => res.json())
@@ -46,17 +45,18 @@ const ViewerPage = () => {
             setRooms(defaultRooms);
             setHistory([]);
           }
-          scheduleRedirect(); // Schedule the redirect after data is loaded
+          resetInactivityTimer();
         })
         .catch(error => {
           console.error('Failed to fetch archived data', error);
           setRooms([]);
           setHistory([]);
-          scheduleRedirect();
+          resetInactivityTimer();
         });
     };
 
     if (isToday) {
+      const roomsRef = ref(database, 'rooms');
       const listener = onValue(roomsRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -75,14 +75,17 @@ const ViewerPage = () => {
       return () => off(roomsRef, 'value', listener);
     } else {
       fetchArchivedData(displayDate);
+      window.addEventListener('mousemove', resetInactivityTimer);
+      window.addEventListener('keydown', resetInactivityTimer);
     }
 
-    // Cleanup timers
     return () => {
-      clearTimeout(activityTimer);
-      clearTimeout(debounceTimer);
+      clearTimeout(inactivityTimerRef.current);
+      window.removeEventListener('mousemove', resetInactivityTimer);
+      window.removeEventListener('keydown', resetInactivityTimer);
     };
-  }, [displayDate, isToday]);
+  }, [displayDate, isToday, resetInactivityTimer]);
+
 
   const handlePrevDay = () => {
     setDisplayDate(prevDate => {
