@@ -2,6 +2,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import SurgeryRoomDisplay from '../components/SurgeryRoomDisplay';
+import { database } from '../../lib/firebase';
+import { ref, onValue, off } from 'firebase/database';
 
 // Helper to format date as YYYY-MM-DD
 const toYYYYMMDD = (date) => {
@@ -17,7 +19,7 @@ const ViewerPage = () => {
 
   useEffect(() => {
     let activityTimer;
-    let interval;
+    const roomsRef = ref(database, 'rooms');
 
     const resetActivityTimer = () => {
       clearTimeout(activityTimer);
@@ -26,26 +28,6 @@ const ViewerPage = () => {
           setDisplayDate(new Date());
         }, 5000); // 5-second timeout
       }
-    };
-
-    const fetchLiveData = () => {
-      fetch('/api/surgeries')
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            const todayString = toYYYYMMDD(new Date());
-            const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
-                if (room.surgeries) {
-                    room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
-                }
-                return room;
-            });
-            setRooms(filteredRooms);
-            const allSurgeries = filteredRooms.filter(room => room).flatMap((room: any) => room.surgeries || []);
-            setHistory(allSurgeries);
-          }
-        })
-        .catch(error => console.error('Failed to fetch live data', error));
     };
 
     const fetchArchivedData = (date) => {
@@ -72,8 +54,24 @@ const ViewerPage = () => {
     };
 
     if (isToday) {
-      fetchLiveData();
-      interval = setInterval(fetchLiveData, 5000);
+      // Subscribe to live data
+      const listener = onValue(roomsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const todayString = toYYYYMMDD(new Date());
+          const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
+            if (room.surgeries) {
+              room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
+            }
+            return room;
+          });
+          setRooms(filteredRooms);
+          const allSurgeries = filteredRooms.flatMap((room: any) => room.surgeries || []);
+          setHistory(allSurgeries);
+        }
+      });
+      // Cleanup listener on component unmount or when date changes
+      return () => off(roomsRef, 'value', listener);
     } else {
       fetchArchivedData(displayDate);
     }
@@ -82,7 +80,6 @@ const ViewerPage = () => {
     window.addEventListener('keydown', resetActivityTimer);
 
     return () => {
-      if (interval) clearInterval(interval);
       clearTimeout(activityTimer);
       window.removeEventListener('mousemove', resetActivityTimer);
       window.removeEventListener('keydown', resetActivityTimer);

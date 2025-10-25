@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import SurgeryRoomDisplay from '../components/SurgeryRoomDisplay';
+import { database } from '../../lib/firebase';
+import { ref, onValue, off } from 'firebase/database';
 
 // Helper to format date as YYYY-MM-DD
 const toYYYYMMDD = (date) => {
@@ -16,9 +18,8 @@ const AdminPage = () => {
 
   useEffect(() => {
     let activityTimer;
-    let interval;
+    const roomsRef = ref(database, 'rooms');
 
-    // Set a timer to redirect back to today if there's no activity
     const resetActivityTimer = () => {
       clearTimeout(activityTimer);
       if (!isToday) {
@@ -26,26 +27,6 @@ const AdminPage = () => {
           setDisplayDate(new Date());
         }, 5000); // 5-second timeout
       }
-    };
-
-    const fetchLiveData = () => {
-      fetch('/api/surgeries')
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            const todayString = toYYYYMMDD(new Date());
-            const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
-                if (room.surgeries) {
-                    room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
-                }
-                return room;
-            });
-            setRooms(filteredRooms);
-            const allSurgeries = filteredRooms.filter(room => room).flatMap((room: any) => room.surgeries || []);
-            setHistory(allSurgeries);
-          }
-        })
-        .catch(error => console.error('Failed to fetch live data', error));
     };
 
     const fetchArchivedData = (date) => {
@@ -57,7 +38,6 @@ const AdminPage = () => {
             const allSurgeries = Object.values(data.rooms).filter(room => room).flatMap((room: any) => room.surgeries || []);
             setHistory(allSurgeries);
           } else {
-            // For future/empty dates, create a default set of empty rooms
             const defaultRooms = Array.from({ length: 7 }, (_, i) => ({ id: i + 1, surgeries: [] }));
             setRooms(defaultRooms);
             setHistory([]);
@@ -73,9 +53,26 @@ const AdminPage = () => {
     };
 
     if (isToday) {
-      fetchLiveData();
-      interval = setInterval(fetchLiveData, 5000); // Poll every 5 seconds for live data
+      // Subscribe to live data
+      const listener = onValue(roomsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const todayString = toYYYYMMDD(new Date());
+          const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
+            if (room.surgeries) {
+              room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
+            }
+            return room;
+          });
+          setRooms(filteredRooms);
+          const allSurgeries = filteredRooms.flatMap((room: any) => room.surgeries || []);
+          setHistory(allSurgeries);
+        }
+      });
+      // Cleanup listener on component unmount or when date changes
+      return () => off(roomsRef, 'value', listener);
     } else {
+      // Fetch historical data
       fetchArchivedData(displayDate);
     }
 
@@ -84,7 +81,6 @@ const AdminPage = () => {
     window.addEventListener('keydown', resetActivityTimer);
 
     return () => {
-      if (interval) clearInterval(interval);
       clearTimeout(activityTimer);
       window.removeEventListener('mousemove', resetActivityTimer);
       window.removeEventListener('keydown', resetActivityTimer);
@@ -114,7 +110,6 @@ const AdminPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomId, surgeryData }),
       });
-      // Refetch will be triggered by the polling interval if it's today
     } catch (error) {
       console.error('Failed to add surgery', error);
     }
@@ -122,13 +117,11 @@ const AdminPage = () => {
 
   const handleStatusChange = async (roomId, surgeryId, newStatus) => {
     try {
-      await fetch(`/api/surgeries/${surgeryId}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomId, newStatus }),
-        }
-      );
+      await fetch(`/api/surgeries/${surgeryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId, newStatus }),
+      });
     } catch (error) {
       console.error('Failed to update surgery', error);
     }
@@ -136,13 +129,11 @@ const AdminPage = () => {
 
   const handleRemoveSurgery = async (roomId, surgeryId) => {
     try {
-      await fetch(`/api/surgeries/${surgeryId}`,
-        {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomId }),
-        }
-      );
+      await fetch(`/api/surgeries/${surgeryId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId }),
+      });
     } catch (error) {
       console.error('Failed to delete surgery', error);
     }
