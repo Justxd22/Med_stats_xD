@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../lib/firebase-admin';
+import { db, firestore } from '../../../../lib/firebase-admin';
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: Request, context: { params: { id: string } }) {
   try {
-    const { id: surgeryId } = await params;
     const { roomId, newStatus } = await request.json();
+    const surgeryId = context.params.id;
 
+    // Update Realtime DB
     const roomRef = db.ref(`rooms/${roomId}`);
     const snapshot = await roomRef.once('value');
     const room = snapshot.val();
@@ -16,11 +14,10 @@ export async function PUT(
     const updatedSurgeries = room.surgeries.map((s: any) =>
       s.id.toString() === surgeryId ? { ...s, status: newStatus } : s
     );
-
     await roomRef.child('surgeries').set(updatedSurgeries);
 
-    const historyRef = db.ref(`history/${surgeryId}`);
-    await historyRef.update({ status: newStatus });
+    // Update Firestore
+    await firestore.collection('surgeries').doc(surgeryId).update({ status: newStatus });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -28,14 +25,12 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: Request, context: { params: { id: string } }) {
   try {
-    const { id: surgeryId } = await params;
     const { roomId } = await request.json();
+    const surgeryId = context.params.id;
 
+    // Update Realtime DB
     const roomRef = db.ref(`rooms/${roomId}`);
     const snapshot = await roomRef.once('value');
     const room = snapshot.val();
@@ -44,8 +39,8 @@ export async function DELETE(
 
     await roomRef.child('surgeries').set(updatedSurgeries);
 
-    const historyRef = db.ref(`history/${surgeryId}`);
-    await historyRef.remove();
+    // Delete from Firestore
+    await firestore.collection('surgeries').doc(surgeryId).delete();
 
     return NextResponse.json({ success: true });
   } catch (error) {

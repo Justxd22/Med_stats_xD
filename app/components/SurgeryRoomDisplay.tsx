@@ -90,58 +90,56 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     setEditingRoom(null);
   }
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!exportDate || !exportEndDate) {
       alert('Please select a start and end date to export.');
       return;
     }
 
-    const startDate = new Date(exportDate);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(exportEndDate);
-    endDate.setHours(23, 59, 59, 999);
+    try {
+      const res = await fetch(`/api/archive?startDate=${exportDate}&endDate=${exportEndDate}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch archived data');
+      }
+      const surgeriesToExport = await res.json();
 
-    const surgeriesToExport = rooms
-      .filter(room => room)
-      .flatMap(room => room.surgeries || [])
-      .filter(surgery => {
-        const surgeryDate = new Date(surgery.dateTime);
-        return surgeryDate >= startDate && surgeryDate <= endDate;
+      if (surgeriesToExport.length === 0) {
+        alert('No surgeries found for the selected date range.');
+        return;
+      }
+
+      const headers = ['Patient Name', 'Age', 'Date/Time', 'Diagnosis', 'Anesthesia Type', 'Surgeon Name', 'Status', 'Room ID'];
+      const csvRows = [headers.join(',')];
+
+      surgeriesToExport.forEach(surgery => {
+        const row = [
+          `"${surgery.patientName}"`,
+          surgery.age,
+          `"${new Date(surgery.dateTime).toLocaleString()}"`,
+          `"${surgery.diagnosis}"`,
+          `"${surgery.anesthesiaType}"`,
+          `"${surgery.surgeonName}"`,
+          surgery.status,
+          surgery.roomId
+        ];
+        csvRows.push(row.join(','));
       });
 
-    if (surgeriesToExport.length === 0) {
-      alert('No surgeries found for the selected date range.');
-      return;
+      const csvString = csvRows.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `surgeries_${exportDate}_to_${exportEndDate}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setShowExportModal(false);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export data. Please try again.");
     }
-
-    const headers = ['Patient Name', 'Age', 'Date/Time', 'Diagnosis', 'Anesthesia Type', 'Surgeon Name', 'Status', 'Room ID'];
-    const csvRows = [headers.join(',')];
-
-    surgeriesToExport.forEach(surgery => {
-      const row = [
-        `"${surgery.patientName}"`,
-        surgery.age,
-        `"${new Date(surgery.dateTime).toLocaleString()}"`,
-        `"${surgery.diagnosis}"`,
-        `"${surgery.anesthesiaType}"`,
-        `"${surgery.surgeonName}"`,
-        surgery.status,
-        surgery.roomId
-      ];
-      csvRows.push(row.join(','));
-    });
-
-    const csvString = csvRows.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `surgeries_${exportDate}_to_${exportEndDate}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setShowExportModal(false);
   };
 
   const filteredHistory = history.filter(record =>
