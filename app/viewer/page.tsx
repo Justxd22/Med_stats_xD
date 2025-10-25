@@ -32,6 +32,16 @@ const ViewerPage = () => {
   }, [isToday, resetToToday]);
 
   useEffect(() => {
+    let inactivityTimer;
+    let debounceTimer;
+
+    const resetInactivityTimer = () => {
+      clearTimeout(inactivityTimer);
+      if (!isToday) {
+        inactivityTimer = setTimeout(resetToToday, 5000); // 5 seconds
+      }
+    };
+
     const fetchArchivedData = (date) => {
       fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
         .then(res => res.json())
@@ -74,17 +84,22 @@ const ViewerPage = () => {
       });
       return () => off(roomsRef, 'value', listener);
     } else {
-      fetchArchivedData(displayDate);
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchArchivedData(displayDate);
+      }, 1000); // 1-second debounce
+
       window.addEventListener('mousemove', resetInactivityTimer);
       window.addEventListener('keydown', resetInactivityTimer);
     }
 
     return () => {
-      clearTimeout(inactivityTimerRef.current);
+      clearTimeout(inactivityTimer);
+      clearTimeout(debounceTimer);
       window.removeEventListener('mousemove', resetInactivityTimer);
       window.removeEventListener('keydown', resetInactivityTimer);
     };
-  }, [displayDate, isToday, resetInactivityTimer]);
+  }, [displayDate, isToday, resetToToday]);
 
 
   const handlePrevDay = () => {
