@@ -1,11 +1,11 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, X, Clock, CheckCircle, Pencil, Link } from 'lucide-react';
+import { Search, Plus, X, Clock, CheckCircle, Pencil, Link, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true }) => {
+const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true, displayDate = new Date(), handlePrevDay = () => {}, handleNextDay = () => {}, isToday = true }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
   
   const [hospitalName, setHospitalName] = useState('Mansoura University');
@@ -203,9 +203,14 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                 <Image src="/logo.png" alt="Logo" width={100} height={100} className="object-contain w-full h-full" priority />
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-4xl font-bold text-blue-900 pr-4">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-              <p className="text-xl text-gray-600 pr-4">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+            <div className="text-right flex items-center gap-4">
+                <p className="text-4xl font-bold text-green-400 pr-4">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+              <button onClick={handlePrevDay} className="p-2 rounded-full hover:bg-gray-200 transition"><ChevronLeft size={32} className="text-gray-700" /></button>
+              <div>
+                <p className="text-2xl font-bold text-blue-900">{displayDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>
+                <p className="text-lg text-gray-600">{displayDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric' })}</p>
+              </div>
+              <button onClick={handleNextDay} className="p-2 rounded-full hover:bg-gray-200 transition disabled:opacity-50"><ChevronRight size={32} className="text-gray-700" /></button>
             </div>
           </div>
         </div>

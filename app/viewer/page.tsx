@@ -1,89 +1,119 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { database } from '../../lib/firebase';
-import { ref, onValue } from 'firebase/database';
 import SurgeryRoomDisplay from '../components/SurgeryRoomDisplay';
+
+// Helper to format date as YYYY-MM-DD
+const toYYYYMMDD = (date) => {
+  return date.toISOString().split('T')[0];
+};
 
 const ViewerPage = () => {
   const [rooms, setRooms] = useState([]);
   const [history, setHistory] = useState([]);
+  const [displayDate, setDisplayDate] = useState(new Date());
+
+  const isToday = toYYYYMMDD(new Date()) === toYYYYMMDD(displayDate);
 
   useEffect(() => {
-    const roomsRef = ref(database, 'rooms');
-    onValue(roomsRef, (snapshot) => {
-      const data = snapshot.val();
-      console.log('rooms data:', data);
-      if (data) {
-        setRooms(Object.values(data));
+    let activityTimer;
+    let interval;
+
+    const resetActivityTimer = () => {
+      clearTimeout(activityTimer);
+      if (!isToday) {
+        activityTimer = setTimeout(() => {
+          setDisplayDate(new Date());
+        }, 5000); // 5-second timeout
       }
-    });
+    };
 
-    const historyRef = ref(database, 'history');
-    onValue(historyRef, (snapshot) => {
-      const data = snapshot.val();
-      console.log('history data:', data);
-      if (data) {
-        setHistory(Object.values(data));
-      }
-    });
-  }, []);
+    const fetchLiveData = () => {
+      fetch('/api/surgeries')
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            const todayString = toYYYYMMDD(new Date());
+            const filteredRooms = Object.values(data).map((room: any) => {
+                if (room.surgeries) {
+                    room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
+                }
+                return room;
+            });
+            setRooms(filteredRooms);
+            const allSurgeries = filteredRooms.filter(room => room).flatMap((room: any) => room.surgeries || []);
+            setHistory(allSurgeries);
+          }
+        })
+        .catch(error => console.error('Failed to fetch live data', error));
+    };
 
+    const fetchArchivedData = (date) => {
+      fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.rooms && Object.keys(data.rooms).length > 0) {
+            setRooms(Object.values(data.rooms));
+            const allSurgeries = Object.values(data.rooms).filter(room => room).flatMap((room: any) => room.surgeries || []);
+            setHistory(allSurgeries);
+          } else {
+            const defaultRooms = Array.from({ length: 7 }, (_, i) => ({ id: i + 1, surgeries: [] }));
+            setRooms(defaultRooms);
+            setHistory([]);
+          }
+          resetActivityTimer();
+        })
+        .catch(error => {
+          console.error('Failed to fetch archived data', error);
+          setRooms([]);
+          setHistory([]);
+          resetActivityTimer();
+        });
+    };
 
-  const fetchData = async () => {
-    try {
-      const res = await fetch('/api/surgeries');
-      const data = await res.json();
-      if (data) {
-        setRooms(Object.values(data));
-      }
-
-      // In a real app, you would fetch history from a separate endpoint
-      // For now, we will just use the rooms data to build the history
-      const allSurgeries = Object.values(data).filter(room => room).flatMap((room: any) => room.surgeries || []);
-      setHistory(allSurgeries);
-
-    } catch (error) {
-      console.error('Failed to fetch data', error);
+    if (isToday) {
+      fetchLiveData();
+      interval = setInterval(fetchLiveData, 5000);
+    } else {
+      fetchArchivedData(displayDate);
     }
+
+    window.addEventListener('mousemove', resetActivityTimer);
+    window.addEventListener('keydown', resetActivityTimer);
+
+    return () => {
+      if (interval) clearInterval(interval);
+      clearTimeout(activityTimer);
+      window.removeEventListener('mousemove', resetActivityTimer);
+      window.removeEventListener('keydown', resetActivityTimer);
+    };
+  }, [displayDate, isToday]);
+
+  const handlePrevDay = () => {
+    setDisplayDate(prevDate => {
+      const newDate = new Date(prevDate);
+      newDate.setDate(newDate.getDate() - 1);
+      return newDate;
+    });
   };
 
-  const handleStatusChange = async (roomId, surgeryId, newStatus) => {
-    try {
-      await fetch(`/api/surgeries/${surgeryId}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomId, newStatus }),
-        }
-      );
-      fetchData(); // Refetch data after updating
-    } catch (error) {
-      console.error('Failed to update surgery', error);
-    }
-  };
-
-
-  const handleMoveSurgery = async (surgeryId, sourceRoomId, destinationRoomId) => {
-    try {
-      await fetch('/api/surgeries/move', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ surgeryId, sourceRoomId, destinationRoomId }),
-      });
-      fetchData(); // Refetch data after moving
-    } catch (error) {
-      console.error('Failed to move surgery', error);
-    }
+  const handleNextDay = () => {
+    setDisplayDate(prevDate => {
+      const newDate = new Date(prevDate);
+      newDate.setDate(newDate.getDate() + 1);
+      return newDate;
+    });
   };
 
   return (
     <SurgeryRoomDisplay 
       rooms={rooms}
       history={history}
-      handleStatusChange={handleStatusChange}
-      handleMoveSurgery={handleMoveSurgery}
       isAdmin={false}
+      displayDate={displayDate}
+      handlePrevDay={handlePrevDay}
+      handleNextDay={handleNextDay}
+      isToday={isToday}
     />
   );
 };

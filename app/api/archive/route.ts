@@ -4,72 +4,80 @@ import { Timestamp } from 'firebase-admin/firestore';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const dateStr = searchParams.get('date');
   const startDateStr = searchParams.get('startDate');
   const endDateStr = searchParams.get('endDate');
 
-  if (!startDateStr || !endDateStr) {
-    return NextResponse.json({ error: 'Missing startDate or endDate' }, { status: 400 });
+  let startDate, endDate;
+
+  if (dateStr) {
+    // Handle single-date query
+    startDate = new Date(dateStr);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(dateStr);
+    endDate.setHours(23, 59, 59, 999);
+  } else if (startDateStr && endDateStr) {
+    // Handle date-range query
+    startDate = new Date(startDateStr);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(endDateStr);
+    endDate.setHours(23, 59, 59, 999);
+  } else {
+    return NextResponse.json({ error: 'Missing date parameters' }, { status: 400 });
   }
 
   try {
-    // Parse the input dates (they come as "2025-10-21")
-    const startDate = new Date(startDateStr);
-    startDate.setHours(0, 0, 0, 0);
-    
-    const endDate = new Date(endDateStr);
-    endDate.setHours(23, 59, 59, 999);
-    
     const startTimestamp = Timestamp.fromDate(startDate);
     const endTimestamp = Timestamp.fromDate(endDate);
-    
-    console.log('Query range:');
-    console.log('Start:', startDate.toISOString());
-    console.log('End:', endDate.toISOString());
-    console.log('Start Timestamp:', startTimestamp.toDate().toISOString());
-    console.log('End Timestamp:', endTimestamp.toDate().toISOString());
-    
+
     const surgeriesRef = firestore.collection('surgeries');
-    
-    // First, let's see what we have
-    const allDocs = await surgeriesRef.limit(5).get();
-    console.log('Sample documents in DB:');
-    allDocs.docs.forEach(doc => {
-      const data = doc.data();
-      console.log('Doc ID:', doc.id);
-      console.log('dateTime:', data.dateTime);
-      if (data.dateTime instanceof Timestamp) {
-        console.log('dateTime as ISO:', data.dateTime.toDate().toISOString());
-      }
-    });
-    
     const snapshot = await surgeriesRef
       .where('dateTime', '>=', startTimestamp)
       .where('dateTime', '<=', endTimestamp)
       .get();
 
-    console.log(`Found ${snapshot.size} documents matching query`);
+    // For single-date requests, we need to return the full rooms object structure
+    if (dateStr) {
+        if (snapshot.empty) {
+            return NextResponse.json({ rooms: {} });
+        }
+        const surgeries = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return { ...data, dateTime: data.dateTime.toDate().toISOString() };
+        });
 
+        const rooms = {};
+        surgeries.forEach(surgery => {
+            const { roomId } = surgery;
+            if (!rooms[roomId]) {
+                rooms[roomId] = { id: roomId, surgeries: [] };
+            }
+            rooms[roomId].surgeries.push(surgery);
+        });
+
+        Object.keys(rooms).forEach(roomId => {
+            const roomNumber = parseInt(roomId, 10);
+            const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
+            rooms[roomId].color = colors[(roomNumber - 1) % colors.length];
+        });
+
+        return NextResponse.json({ rooms });
+    }
+
+    // For date-range requests (export), return a flat array
     if (snapshot.empty) {
       return NextResponse.json([], { status: 200 });
     }
 
     const surgeries = snapshot.docs.map(doc => {
       const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        dateTime: data.dateTime instanceof Timestamp 
-          ? data.dateTime.toDate().toISOString() 
-          : data.dateTime
-      };
+      return { ...data, dateTime: data.dateTime.toDate().toISOString() };
     });
     
     return NextResponse.json(surgeries);
+
   } catch (error) {
     console.error("Error fetching archived surgeries:", error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch archived data',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch archived data' }, { status: 500 });
   }
 }
