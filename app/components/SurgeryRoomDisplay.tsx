@@ -152,6 +152,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
   const allSurgeries = rooms.filter(room => room).flatMap(room => room.surgeries || []);
   const totalOperations = allSurgeries.length;
   const totalCompleted = allSurgeries.filter(s => s.status === 'completed').length;
+  const totalIncomplete = totalOperations - totalCompleted;
 
   return (
     <div className="min-h-screen bg-gray-900 p-2 sm:p-4">
@@ -253,12 +254,12 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4">
               {rooms.filter(room => room).map(room => {
                 const currentSurgery = getCurrentSurgery(room.surgeries);
-                const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
-                const completedSurgeriesInRoom = room.surgeries ? room.surgeries.filter(s => s.status === 'completed').length : 0;
-
+                              const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
+                              const completedSurgeriesInRoom = room.surgeries ? room.surgeries.filter(s => s.status === 'completed').length : 0;
+                              const incompleteSurgeriesInRoom = totalSurgeriesInRoom - completedSurgeriesInRoom;
                 return (
                   <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
-                    <div className={`bg-white text-white p-3 sm:p-4 flex justify-between items-center`}>
+                    <div className={`bg-white text-white p-2 sm:p-2 flex justify-between items-center`}>
                       <h2
                         className={`font-bold text-gray-800 ${room.id === 6
                             ? "text-lg sm:text-xl"
@@ -273,9 +274,9 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                       </h2>
                       <div className="flex items-center gap-4">
                         <div className="text-xs text-right text-gray-700">
-                          <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
-                          <p className='text-green-700 font-bold'>Completed: {completedSurgeriesInRoom}</p>
-                        </div>
+                                                  <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
+                                                  <p className='text-orange-500 font-bold'>Incomplete: {incompleteSurgeriesInRoom}</p>
+                                                  <p className='text-green-700 font-bold'>Completed: {completedSurgeriesInRoom}</p>                        </div>
                         {isAdmin && <button
                           onClick={() => {
                             setEditingRoom(room.id);
@@ -503,6 +504,10 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
             <div className="flex flex-col items-center text-gray-900 font-bold">
               <p>Total Operations</p>
               <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 font-bold">{totalOperations}</span>
+            </div>
+            <div className="flex flex-col items-center text-gray-900 font-bold">
+              <p>Total Incomplete</p>
+              <span className="text-xl sm:text-2xl lg:text-3xl text-orange-500 font-bold">{totalIncomplete}</span>
             </div>
             <div className="flex flex-col items-center text-gray-900 font-bold">
               <p>Total Completed</p>
