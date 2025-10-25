@@ -16,76 +16,137 @@ const AdminPage = () => {
 
   const isToday = toYYYYMMDD(new Date()) === toYYYYMMDD(displayDate);
 
-  useEffect(() => {
-    let activityTimer;
-    const roomsRef = ref(database, 'rooms');
+      useEffect(() => {
 
-    const resetActivityTimer = () => {
-      clearTimeout(activityTimer);
-      if (!isToday) {
-        activityTimer = setTimeout(() => {
-          setDisplayDate(new Date());
-        }, 5000); // 5-second timeout
-      }
-    };
+        let activityTimer;
 
-    const fetchArchivedData = (date) => {
-      fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.rooms && Object.keys(data.rooms).length > 0) {
-            setRooms(Object.values(data.rooms));
-            const allSurgeries = Object.values(data.rooms).filter(room => room).flatMap((room: any) => room.surgeries || []);
-            setHistory(allSurgeries);
-          } else {
-            const defaultRooms = Array.from({ length: 7 }, (_, i) => ({ id: i + 1, surgeries: [] }));
-            setRooms(defaultRooms);
-            setHistory([]);
-          }
-          resetActivityTimer();
-        })
-        .catch(error => {
-          console.error('Failed to fetch archived data', error);
-          setRooms([]);
-          setHistory([]);
-          resetActivityTimer();
-        });
-    };
+        let debounceTimer;
 
-    if (isToday) {
-      // Subscribe to live data
-      const listener = onValue(roomsRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const todayString = toYYYYMMDD(new Date());
-          const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
-            if (room.surgeries) {
-              room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
+        const roomsRef = ref(database, 'rooms');
+
+    
+
+        const scheduleRedirect = () => {
+
+          clearTimeout(debounceTimer);
+
+          debounceTimer = setTimeout(() => {
+
+            if (!isToday) {
+
+              activityTimer = setTimeout(() => {
+
+                setDisplayDate(new Date());
+
+              }, 5000); // 5-second redirect
+
             }
-            return room;
+
+          }, 2000); // 2-second settle time
+
+        };
+
+    
+
+        const fetchArchivedData = (date) => {
+
+          fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
+
+            .then(res => res.json())
+
+            .then(data => {
+
+              if (data && data.rooms && Object.keys(data.rooms).length > 0) {
+
+                setRooms(Object.values(data.rooms));
+
+                const allSurgeries = Object.values(data.rooms).filter(room => room).flatMap((room: any) => room.surgeries || []);
+
+                setHistory(allSurgeries);
+
+              } else {
+
+                const defaultRooms = Array.from({ length: 7 }, (_, i) => ({ id: i + 1, surgeries: [] }));
+
+                setRooms(defaultRooms);
+
+                setHistory([]);
+
+              }
+
+              scheduleRedirect(); // Schedule the redirect after data is loaded
+
+            })
+
+            .catch(error => {
+
+              console.error('Failed to fetch archived data', error);
+
+              setRooms([]);
+
+              setHistory([]);
+
+              scheduleRedirect();
+
+            });
+
+        };
+
+    
+
+        if (isToday) {
+
+          const listener = onValue(roomsRef, (snapshot) => {
+
+            const data = snapshot.val();
+
+            if (data) {
+
+              const todayString = toYYYYMMDD(new Date());
+
+              const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
+
+                if (room.surgeries) {
+
+                  room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
+
+                }
+
+                return room;
+
+              });
+
+              setRooms(filteredRooms);
+
+              const allSurgeries = filteredRooms.flatMap((room: any) => room.surgeries || []);
+
+              setHistory(allSurgeries);
+
+            }
+
           });
-          setRooms(filteredRooms);
-          const allSurgeries = filteredRooms.flatMap((room: any) => room.surgeries || []);
-          setHistory(allSurgeries);
+
+          return () => off(roomsRef, 'value', listener);
+
+        } else {
+
+          fetchArchivedData(displayDate);
+
         }
-      });
-      // Cleanup listener on component unmount or when date changes
-      return () => off(roomsRef, 'value', listener);
-    } else {
-      // Fetch historical data
-      fetchArchivedData(displayDate);
-    }
 
-    // Add event listeners to reset the timer on user activity
-    window.addEventListener('mousemove', resetActivityTimer);
-    window.addEventListener('keydown', resetActivityTimer);
+    
 
-    return () => {
-      clearTimeout(activityTimer);
-      window.removeEventListener('mousemove', resetActivityTimer);
-      window.removeEventListener('keydown', resetActivityTimer);
-    };
-  }, [displayDate, isToday]);
+        // Cleanup timers
+
+        return () => {
+
+          clearTimeout(activityTimer);
+
+          clearTimeout(debounceTimer);
+
+        };
+
+      }, [displayDate, isToday]);
 
   const handlePrevDay = () => {
     setDisplayDate(prevDate => {

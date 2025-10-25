@@ -19,15 +19,18 @@ const ViewerPage = () => {
 
   useEffect(() => {
     let activityTimer;
+    let debounceTimer;
     const roomsRef = ref(database, 'rooms');
 
-    const resetActivityTimer = () => {
-      clearTimeout(activityTimer);
-      if (!isToday) {
-        activityTimer = setTimeout(() => {
-          setDisplayDate(new Date());
-        }, 5000); // 5-second timeout
-      }
+    const scheduleRedirect = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (!isToday) {
+          activityTimer = setTimeout(() => {
+            setDisplayDate(new Date());
+          }, 5000); // 5-second redirect
+        }
+      }, 2000); // 2-second settle time
     };
 
     const fetchArchivedData = (date) => {
@@ -43,18 +46,17 @@ const ViewerPage = () => {
             setRooms(defaultRooms);
             setHistory([]);
           }
-          resetActivityTimer();
+          scheduleRedirect(); // Schedule the redirect after data is loaded
         })
         .catch(error => {
           console.error('Failed to fetch archived data', error);
           setRooms([]);
           setHistory([]);
-          resetActivityTimer();
+          scheduleRedirect();
         });
     };
 
     if (isToday) {
-      // Subscribe to live data
       const listener = onValue(roomsRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -70,19 +72,15 @@ const ViewerPage = () => {
           setHistory(allSurgeries);
         }
       });
-      // Cleanup listener on component unmount or when date changes
       return () => off(roomsRef, 'value', listener);
     } else {
       fetchArchivedData(displayDate);
     }
 
-    window.addEventListener('mousemove', resetActivityTimer);
-    window.addEventListener('keydown', resetActivityTimer);
-
+    // Cleanup timers
     return () => {
       clearTimeout(activityTimer);
-      window.removeEventListener('mousemove', resetActivityTimer);
-      window.removeEventListener('keydown', resetActivityTimer);
+      clearTimeout(debounceTimer);
     };
   }, [displayDate, isToday]);
 

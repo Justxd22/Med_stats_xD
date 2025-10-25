@@ -204,11 +204,11 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               </div>
             </div>
             <div className="text-right flex items-center gap-4">
-                <p className="text-4xl font-bold text-green-400 pr-4">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
               <button onClick={handlePrevDay} className="p-2 rounded-full hover:bg-gray-200 transition"><ChevronLeft size={32} className="text-gray-700" /></button>
               <div>
                 <p className="text-2xl font-bold text-blue-900">{displayDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>
                 <p className="text-lg text-gray-600">{displayDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric' })}</p>
+                <p className="text-xl font-bold text-blue-900 pr-4">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
               <button onClick={handleNextDay} className="p-2 rounded-full hover:bg-gray-200 transition disabled:opacity-50"><ChevronRight size={32} className="text-gray-700" /></button>
             </div>
