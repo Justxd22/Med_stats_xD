@@ -291,9 +291,12 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                     
                     <div className="p-3 sm:p-4">
                       {room.surgeries && room.surgeries.length > 0 ? (
-                        <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
-                          {room.surgeries.map((surgery) => {
-                            const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
+                                              <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
+                                                {room.surgeries.sort((a, b) => {
+                                                  if (a.status === 'completed' && b.status !== 'completed') return 1;
+                                                  if (b.status === 'completed' && a.status !== 'completed') return -1;
+                                                  return new Date(a.dateTime) - new Date(b.dateTime);
+                                                }).map((surgery) => {                            const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
                             return (
                               <div key={surgery.id} className={`border-2 rounded-lg p-2 sm:p-3 ${getStatusColor(surgery, currentSurgery)}`}>
                                 <div className="flex justify-between items-start mb-2">
