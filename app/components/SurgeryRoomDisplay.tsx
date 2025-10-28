@@ -561,7 +561,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                           ? "Injection"
                           : room.id === 7
                             ? "ICU"
-                            : `OR${room.id}`}
+                            : `ROOM${room.id}`}
                       </h2>
                       <div className="flex items-center gap-4">
                         <div className="text-xs text-right text-gray-700">
