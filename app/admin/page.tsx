@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import SurgeryRoomDisplay from '../components/SurgeryRoomDisplay';
 import { database } from '../../lib/firebase';
 import { ref, onValue, off } from 'firebase/database';
@@ -16,33 +16,10 @@ const AdminPage = () => {
   const [rooms, setRooms] = useState([]);
   const [history, setHistory] = useState([]);
   const [displayDate, setDisplayDate] = useState(new Date());
-  const inactivityTimerRef = useRef(null);
 
   const isToday = toYYYYMMDD(new Date()) === toYYYYMMDD(displayDate);
 
-  const resetToToday = useCallback(() => {
-    setDisplayDate(new Date());
-  }, []);
-
-  const resetInactivityTimer = useCallback(() => {
-    console.log('movvvv', inactivityTimerRef.current)
-    clearTimeout(inactivityTimerRef.current);
-    if (!isToday) {
-      inactivityTimerRef.current = setTimeout(resetToToday, 5000); // 5 seconds
-    }
-  }, [isToday, resetToToday]);
-
   useEffect(() => {
-    let inactivityTimer;
-    let debounceTimer;
-
-    const resetInactivityTimer = () => {
-      clearTimeout(inactivityTimer);
-      if (!isToday) {
-        inactivityTimer = setTimeout(resetToToday, 5000); // 5 seconds
-      }
-    };
-
     const fetchArchivedData = (date) => {
       fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
         .then(res => res.json())
@@ -56,13 +33,11 @@ const AdminPage = () => {
             setRooms(defaultRooms);
             setHistory([]);
           }
-          resetInactivityTimer();
         })
         .catch(error => {
           console.error('Failed to fetch archived data', error);
           setRooms([]);
           setHistory([]);
-          resetInactivityTimer();
         });
     };
 
@@ -85,22 +60,9 @@ const AdminPage = () => {
       });
       return () => off(roomsRef, 'value', listener);
     } else {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        fetchArchivedData(displayDate);
-      }, 1000); // 1-second debounce
-
-      window.addEventListener('mousemove', resetInactivityTimer);
-      window.addEventListener('keydown', resetInactivityTimer);
+      fetchArchivedData(displayDate);
     }
-
-    return () => {
-      clearTimeout(inactivityTimer);
-      clearTimeout(debounceTimer);
-      window.removeEventListener('mousemove', resetInactivityTimer);
-      window.removeEventListener('keydown', resetInactivityTimer);
-    };
-  }, [displayDate, isToday, resetToToday]);
+  }, [displayDate, isToday]);
 
   const handlePrevDay = () => {
     setDisplayDate(prevDate => {
