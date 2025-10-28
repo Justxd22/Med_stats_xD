@@ -672,7 +672,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                           className="p-3 sm:p-4 h-full"
                         >
                           {room.surgeries && room.surgeries.length > 0 ? (
-                                                  <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
+                                                  <div className="space-y-2 sm:space-y-3">
                                                     {room.surgeries.sort((a, b) => {
                                                       if (a.status === 'completed' && b.status !== 'completed') return 1;
                                                       if (b.status === 'completed' && a.status !== 'completed') return -1;
