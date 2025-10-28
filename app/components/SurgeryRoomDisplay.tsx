@@ -223,6 +223,8 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     ]
   };
   const operationCollections = Object.keys(operationData);
+  const surgeons = ['Dr. Smith', 'Dr. Elara', 'Dr. Jones', 'Dr. Williams']; // Placeholder
+  const assistants = ['Assistant A', 'Assistant B', 'Assistant C']; // Placeholder
   // ---
 
   const [hospitalName, setHospitalName] = useState('Mansoura University');
@@ -243,6 +245,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     dateTime: '',
     anesthesiaType: 'Local', // Default value
     surgeonName: '',
+    surgeonAssistant: '',
     operationCollection: '',
     operationName: '',
     eye: 'Left Eye', // Default value
@@ -330,7 +333,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
   };
 
   const onAddSurgery = () => {
-    if (!formData.patientName || !formData.nationalId || !formData.dateTime || !formData.anesthesiaType || !formData.surgeonName || !formData.operationCollection || !formData.operationName || !formData.eye) {
+    if (!formData.patientName || !formData.nationalId || !formData.dateTime || !formData.anesthesiaType || !formData.surgeonName || !formData.surgeonAssistant || !formData.operationCollection || !formData.operationName || !formData.eye) {
       alert('Please fill all fields');
       return;
     }
@@ -341,6 +344,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
       dateTime: '',
       anesthesiaType: 'Local',
       surgeonName: '',
+      surgeonAssistant: '',
       operationCollection: '',
       operationName: '',
       eye: 'Left Eye',
@@ -410,6 +414,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
   const allSurgeries = rooms.filter(room => room).flatMap(room => room.surgeries || []);
   const totalOperations = allSurgeries.length;
   const totalCompleted = allSurgeries.filter(s => s.status === 'completed').length;
+  const totalPostponed = allSurgeries.filter(s => s.status === 'delayed').length;
   const totalIncomplete = totalOperations - totalCompleted;
   const onDragEnd = (result) => {
     const { source, destination, draggableId } = result;
@@ -551,6 +556,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                 return (
                   <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
                     <div className={`bg-white text-white p-2 sm:p-2 flex justify-between items-center`}>
+                    <div>
                       <h2
                         className={`font-bold text-gray-800 ${room.id === 6
                             ? "text-lg sm:text-xl"
@@ -563,12 +569,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                             ? "ICU"
                             : `ROOM${room.id}`}
                       </h2>
-                      <div className="flex items-center gap-4">
-                        <div className="text-xs text-right text-gray-700">
-                                                  <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
-                                                  <p className='text-orange-500 font-bold'>Incomplete: {incompleteSurgeriesInRoom}</p>
-                                                  <p className='text-green-700 font-bold'>Completed: {completedSurgeriesInRoom}</p>                        </div>
-                        {isAdmin && <button
+                      {isAdmin && <button
                           onClick={() => {
                             setEditingRoom(room.id);
                             setShowAddForm(true);
@@ -577,6 +578,13 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                         >
                           <Pencil size={18} className="sm:w-5 sm:h-5" />
                         </button>}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-xs text-right text-gray-700">
+                                                  <p className='font-bold'>Total: {totalSurgeriesInRoom}</p>
+                                                  <p className='text-orange-500 font-bold'>Incomplete: {incompleteSurgeriesInRoom}</p>
+                                                  <p className='text-green-700 font-bold'>Completed: {completedSurgeriesInRoom}</p>                        </div>
+
                       </div>
                     </div>
                     
@@ -801,16 +809,32 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                   </div>
                 </div>
 
-                {/* Surgeon and DateTime */}
+                {/* Surgeon and Assistant */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block font-medium mb-2">Surgeon Name</label>
-                    <input type="text" name="surgeonName" value={formData.surgeonName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                    <select name="surgeonName" value={formData.surgeonName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg">
+                      <option value="" disabled>Select Surgeon</option>
+                      {surgeons.map(name => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
-                    <label className="block font-medium mb-2">Date/Time</label>
-                    <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                    <label className="block font-medium mb-2">Surgeon Assistant</label>
+                    <select name="surgeonAssistant" value={formData.surgeonAssistant} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg">
+                      <option value="" disabled>Select Assistant</option>
+                      {assistants.map(name => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
+                    </select>
                   </div>
+                </div>
+
+                {/* DateTime */}
+                <div>
+                  <label className="block font-medium mb-2">Date/Time</label>
+                  <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
                 </div>
                 
                 <button onClick={onAddSurgery} className="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 text-xl font-medium">
@@ -853,7 +877,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
           <option value="scheduled">Waiting</option>
           <option value="in-progress">In Progress</option>
           <option value="completed">Completed</option>
-          <option value="delayed">Delayed</option>
+          <option value="delayed">Postponed</option>
         </select>
       </div>
     </div>
@@ -871,12 +895,16 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 font-bold">{totalOperations}</span>
             </div>
             <div className="flex flex-col items-center text-gray-900 font-bold">
-              <p>Total Incomplete</p>
+              <p>Completed</p>
+              <span className="text-xl sm:text-2xl lg:text-3xl text-green-500 font-bold">{totalCompleted}</span>
+            </div>
+            <div className="flex flex-col items-center text-gray-900 font-bold">
+              <p>Incomplete</p>
               <span className="text-xl sm:text-2xl lg:text-3xl text-orange-500 font-bold">{totalIncomplete}</span>
             </div>
             <div className="flex flex-col items-center text-gray-900 font-bold">
-              <p>Total Completed</p>
-              <span className="text-xl sm:text-2xl lg:text-3xl text-green-500 font-bold">{totalCompleted}</span>
+              <p>Postponed</p>
+              <span className="text-xl sm:text-2xl lg:text-3xl text-red-500 font-bold">{totalPostponed}</span>
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm lg:text-base sm:pr-15">
@@ -886,7 +914,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-red-700 border-2 border-red-700 rounded"></span>
-              <span>Delayed</span>
+              <span>Postponed</span>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <span className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-green-700 border-2 border-green-700 rounded"></span>

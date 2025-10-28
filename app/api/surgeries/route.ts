@@ -41,6 +41,7 @@ export async function POST(request: Request) {
     if (surgeryData.gender) newSurgery.gender = surgeryData.gender;
     if (surgeryData.dob) newSurgery.dob = surgeryData.dob;
     if (surgeryData.age) newSurgery.age = surgeryData.age;
+    if (surgeryData.surgeonAssistant) newSurgery.surgeonAssistant = surgeryData.surgeonAssistant;
 
     // Write to Realtime DB for live view
     const roomRef = db.ref(`rooms/${roomId}`);
