@@ -714,6 +714,13 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
 
                                             <div className="flex items-start gap-2">
                                               <div className="flex-1">
+                                                <p className="text-xs text-gray-500 font-medium">Eye</p>
+                                                <p className="text-sm sm:text-base font-semibold text-gray-800">{surgery.eye}</p>
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-start gap-2">
+                                              <div className="flex-1">
                                                 <p className="text-xs text-gray-500 font-medium">Surgeon</p>
                                                 <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonName}</p>
                                               </div>
@@ -723,13 +730,6 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                               <div className="flex-1">
                                                 <p className="text-xs text-gray-500 font-medium">Surgeon Assistant</p>
                                                 <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonAssistant}</p>
-                                              </div>
-                                            </div>
-
-                                            <div className="flex items-start gap-2">
-                                              <div className="flex-1">
-                                                <p className="text-xs text-gray-500 font-medium">Eye</p>
-                                                <p className="text-sm sm:text-base font-semibold text-gray-800">{surgery.eye}</p>
                                               </div>
                                             </div>
                                           </div>
