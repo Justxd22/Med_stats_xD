@@ -689,7 +689,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                         <div className={`rounded-xl shadow-md hover:shadow-lg transition-shadow ${getStatusColor(surgery, currentSurgery)} overflow-hidden`}>
 
                                           {/* Patient Details Section */}
-                                          <div className="px-3 sm:px-4 pb-3 border-b border-gray-200">
+                                          <div className="px-2 sm:px-2 pb-3 border-b border-gray-200">
                                             <h3 className="font-bold text-base sm:text-lg lg:text-xl mb-1 mt-1" dir="auto">
                                               {surgery.patientName}
                                             </h3>
@@ -703,14 +703,9 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                           </div>
 
                                           {/* Surgery Details Section */}
-                                          <div className="px-3 sm:px-4 py-3 bg-gray-50 space-y-2">
+                                          <div className="px-2 sm:px-2 py-3 bg-gray-50 space-y-2">
                                             <div className="flex items-start gap-2">
-                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-purple-100 flex items-center justify-center mt-0.5">
-                                                <svg className="w-3 h-3 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                                  <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
-                                                </svg>
-                                              </div>
+
                                               <div className="flex-1">
                                                 <p className="text-xs text-gray-500 font-medium">Operation</p>
                                                 <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.operationName}</p>
@@ -718,11 +713,6 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                             </div>
 
                                             <div className="flex items-start gap-2">
-                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-green-100 flex items-center justify-center mt-0.5">
-                                                <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
-                                                </svg>
-                                              </div>
                                               <div className="flex-1">
                                                 <p className="text-xs text-gray-500 font-medium">Surgeon</p>
                                                 <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonName}</p>
@@ -730,11 +720,6 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                             </div>
 
                                             <div className="flex items-start gap-2">
-                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-green-100 flex items-center justify-center mt-0.5">
-                                                <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
-                                                </svg>
-                                              </div>
                                               <div className="flex-1">
                                                 <p className="text-xs text-gray-500 font-medium">Surgeon Assistant</p>
                                                 <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonAssistant}</p>
@@ -742,12 +727,6 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                             </div>
 
                                             <div className="flex items-start gap-2">
-                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-amber-100 flex items-center justify-center mt-0.5">
-                                                <svg className="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                                                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                                                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-                                                </svg>
-                                              </div>
                                               <div className="flex-1">
                                                 <p className="text-xs text-gray-500 font-medium">Eye</p>
                                                 <p className="text-sm sm:text-base font-semibold text-gray-800">{surgery.eye}</p>
@@ -756,8 +735,8 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                           </div>
 
                                           {/* Time Footer */}
-                                          <div className="px-3 sm:px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100">
-                                            <div className="flex items-center justify-center gap-2 text-blue-700">
+                                          <div className="px-3 sm:px-4 py-2.5 bg-gradient-to-r border-t border-blue-100">
+                                            <div className="flex items-center justify-center gap-2 ">
                                               <Clock size={14} className="sm:w-4 sm:h-4" />
                                               <span className="text-xs sm:text-sm font-semibold">
                                                 {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
