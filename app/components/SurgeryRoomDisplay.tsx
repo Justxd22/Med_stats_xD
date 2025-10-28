@@ -223,8 +223,84 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     ]
   };
   const operationCollections = Object.keys(operationData);
-  const surgeons = ['Dr. Smith', 'Dr. Elara', 'Dr. Jones', 'Dr. Williams']; // Placeholder
-  const assistants = ['Assistant A', 'Assistant B', 'Assistant C']; // Placeholder
+  const surgeons = [
+    "أ.د/ طاهر محمد جمال الدين الدسوقي",
+    "أ.د/ إجلال محمد السعيد مصطفى",
+    "أ.د/ آمال أحمد عبد الوهاب",
+    "أ.د/ رءوف أمين أحمد النفيس",
+    "أ.د/ محمد نادر رشدي المتولي",
+    "أ.د/ أحمد رشيد سامح محمود اللقاني",
+    "أ.د/ محمد هاني عبد الرحمن سالم",
+    "أ.د/ أحمد مصطفى إسماعيل",
+    "أ.د/ أشرف محمد سويلم محمد",
+    "أ.د/ عصام عبد الحميد السعيد بدور",
+    "أ.د/ ابراهيم طه العدوى عفصه",
+    "أ.د/ عادل السيد عبد العال اللايح",
+    "أ.د/ هشام إبراهيم علي السروجي",
+    "أ.د/ محمد أحمد محمد خلف",
+    "أ.د/ سامي على محمد أبو الخير",
+    "أ.د/ سحر مصطفي الطرشوبي",
+    "أ.د/ ايمان محمد الحفنى عطا",
+    "أ.د/ حسام محمد على السيد الفلال",
+    "أ.د/ حمزة عبد الحميد أحمد عبد الله",
+    "أ.د/ أيهاب حسن احمد نعمة الله",
+    "أ.د/ أحمد سامي الوهيدى الحسيني",
+    "أ.د/ أشرف إبراهيم معوض محمد",
+    "أ.د/ أسعد أحمد ابراهيم غانم",
+    "أ.د/ ايهاب محمد عبد الحميد نافع",
+    "أ.د/ طارق احمد عبد الوهاب محسن",
+    "أ.د/ حاتم السعيد العوضي",
+    "أ.د/ محمد عبد الله جاد",
+    "أ.د/ أمل مصطفى البندارى زغبي",
+    "أ.د/ مها محمد عثمان شاهين",
+    "أ.د/ حسام الدين طه زينهم",
+    "أ.د/ عمرو محمد حسن القنيشي",
+    "أ.د/ هانم محمد عبد الفتاح كشك",
+    "أ.د/ داليا صبرى الإمام",
+    "أ.د/ منال على حسين إبراهيم",
+    "أ.د/ وليد علي مصطفي أبو سمره",
+    "أ.د/ محمد ممدوح صابر علوان",
+    "أ.د/ شريف السعيد الخولى",
+    "أ.د/ منى عبد القادر رمضان",
+    "أ.د/ سامح محمود حسن صالح",
+    "أ.د/ عبير محمد صادق خطاب",
+    "أ.د/ ماجدة عبد الواحد التركي",
+    "أ.د/ حسام الدين يوسف عمر ابو الخير",
+    "أ.د/ رانيا كامل عبد الحميد فرج",
+    "أ.د/ اماني السيد بدوي محمد",
+    "أ.د/ ايمان عزمي عبد الحميد عوض",
+    "أ.د/ ايمن السيد عبد الغفار محمد",
+    "أ.د/ شــرين محمود عبدالسلام هجرس",
+    "أ.د/ وليد محمد عبد العزيز جعفر",
+    "أ.د/ نشأت شوقي زكى"
+  ];
+  const assistants = [
+    "د/ أيمن عبد الغنى جميل",
+    "د/ كمال محمد أنعام",
+    "د/ عبدالمنعم ابوالفتوح الحصى",
+    "د/ أميرة جمال عبد الحميد هلال",
+    "د/ عمرو محمد السيد عبد القادر محمد",
+    "د/ أميره فاروق زكى",
+    "د/ رانيا محمد رضا بسيوني",
+    "د/ ايمن محمد فوزي توفيق",
+    "د/ أمجد محمود النقراشي",
+    "د/ رشـا مجـدي الـزينـي",
+    "د/ دينا عبد الفتاح عبد الرحيم محمد",
+    "د/ وائل محمد محمود الدسوقي",
+    "د/ ابراهيم  الحسيني ابراهيم الدسوقي",
+    "د/ أيه محمد حمدي عبد الجليل حشيش",
+    "د/ دينا نبيل اسماعيل ليمون",
+    "د/ غــــادة حسن عــــلام",
+    "د/ سارة عبد الجواد محمد عبد العال",
+    "د / ايمان احمد عطا الله ابراهيم",
+    "ط/ أحمد جمال الغريب يوسف",
+    "ط/ منه الله مصطفـــى على",
+    "ط/ محمد السعيد عبد الهادى",
+    "ط/ آلاء محمد أبو الليل موسى",
+    "ط/ حنان مصطفى بركات  عمر",
+    "ط/ عبد الرحمن محمد محمود السيد حفناوي",
+    "ط/محمد ايمن عبد الله البدرى"
+  ];
   // ---
 
   const [hospitalName, setHospitalName] = useState('Mansoura University');
@@ -312,7 +388,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     return null;
   };
 
-  const getStatusColor = (surgery) => {
+  const getStatusColor = (surgery, currentSurgery: any) => {
     switch (surgery.status) {
       case 'completed':
         return 'bg-green-900 text-white-900 border-green-300';
@@ -610,38 +686,91 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                       >
-                                        <div className={`border-2 rounded-lg p-2 sm:p-3 ${getStatusColor(surgery, currentSurgery)}`}>
-                                                                                                          <div className="flex justify-between items-start mb-2">
-                                                                                                            <div className="flex-1">
-                                                                                                                                                  <p className="font-bold text-sm sm:text-base lg:text-lg">{surgery.patientName} ({surgery.age}) {surgery.gender === 'Male' ? 'M' : 'F'}</p>
-                                                                                                                                                  <div className="flex items-center gap-1 text-xs sm:text-sm mt-1">
-                                                                                                                                                    <Clock size={12} className="sm:w-3.5 sm:h-3.5" />
-                                                                                                                                                    <span>{new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &middot; {surgery.dob}</span>
-                                                                                                                                                  </div>                                                                                                            </div>
-                                                                          
-                                                                                                            {isAdmin && <div className="flex flex-col gap-2">
-                                                                                                              <button
-                                                                                                                onClick={() => handleRemoveSurgery(room.id, surgery.id)}
-                                                                                                                className="text-gray-400 hover:text-red-500"
-                                                                                                              >
-                                                                                                                <X size={14} className="sm:w-4 sm:h-4" />
-                                                                                                              </button>
-                                                                                                            </div>}
-                                                                          
-                                                                                                          </div>
-                                                                                                          
-                                                                                                          <div className="text-xs sm:text-sm space-y-1 mb-2">
-                                                                                                            <p><span className="font-bold">Operation:</span> {surgery.operationName}</p>
-                                                                                                            <p><span className="font-bold">Surgeon:</span> {surgery.surgeonName}</p>
-                                                                                                            <p><span className="font-bold">Eye:</span> {surgery.eye}</p>
-                                                                                                          </div>
-                                          <div className="flex justify-end">
+                                        <div className={`rounded-xl shadow-md hover:shadow-lg transition-shadow ${getStatusColor(surgery, currentSurgery)} overflow-hidden`}>
+
+                                          {/* Patient Details Section */}
+                                          <div className="px-3 sm:px-4 pb-3 border-b border-gray-200">
+                                            <h3 className="font-bold text-base sm:text-lg lg:text-xl mb-1 mt-1" dir="auto">
+                                              {surgery.patientName}
+                                            </h3>
+                                            <div className="flex items-center gap-2 text-xs sm:text-sm ">
+                                              <span className="font-medium">{surgery.age}yr</span>
+                                              <span>/</span>
+                                              <span className="font-medium">{surgery.gender === 'Male' ? 'M' : 'F'}</span>
+                                              <span>/</span>
+                                              <span className="font-medium">{surgery.dob}</span>
+                                            </div>
+                                          </div>
+
+                                          {/* Surgery Details Section */}
+                                          <div className="px-3 sm:px-4 py-3 bg-gray-50 space-y-2">
+                                            <div className="flex items-start gap-2">
+                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-purple-100 flex items-center justify-center mt-0.5">
+                                                <svg className="w-3 h-3 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                                  <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
+                                                </svg>
+                                              </div>
+                                              <div className="flex-1">
+                                                <p className="text-xs text-gray-500 font-medium">Operation</p>
+                                                <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.operationName}</p>
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-start gap-2">
+                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-green-100 flex items-center justify-center mt-0.5">
+                                                <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+                                                </svg>
+                                              </div>
+                                              <div className="flex-1">
+                                                <p className="text-xs text-gray-500 font-medium">Surgeon</p>
+                                                <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonName}</p>
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-start gap-2">
+                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-green-100 flex items-center justify-center mt-0.5">
+                                                <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+                                                </svg>
+                                              </div>
+                                              <div className="flex-1">
+                                                <p className="text-xs text-gray-500 font-medium">Surgeon Assistant</p>
+                                                <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonAssistant}</p>
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-start gap-2">
+                                              <div className="w-5 h-5 flex-shrink-0 rounded bg-amber-100 flex items-center justify-center mt-0.5">
+                                                <svg className="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                                                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                                                </svg>
+                                              </div>
+                                              <div className="flex-1">
+                                                <p className="text-xs text-gray-500 font-medium">Eye</p>
+                                                <p className="text-sm sm:text-base font-semibold text-gray-800">{surgery.eye}</p>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {/* Time Footer */}
+                                          <div className="px-3 sm:px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100">
+                                            <div className="flex items-center justify-center gap-2 text-blue-700">
+                                              <Clock size={14} className="sm:w-4 sm:h-4" />
+                                              <span className="text-xs sm:text-sm font-semibold">
+                                                {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                              </span>
+                                              <div className="flex justify-end">
                                             <button
                                               onClick={() => setEditingSurgery(surgery)}
                                               className="text-gray-400 hover:text-blue-500"
                                             >
                                               <Pencil size={14} className="sm:w-4 sm:h-4" />
                                             </button>
+                                            </div>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
