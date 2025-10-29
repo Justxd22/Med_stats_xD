@@ -16,6 +16,10 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const database = getDatabase(app);
-const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+const analytics = typeof window !== "undefined"
+  ? isSupported().then(yes => (yes ? getAnalytics(app) : null))
+  : Promise.resolve(null);
+
+console.log(await analytics, process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENTID);
 
 export { app, database, analytics };

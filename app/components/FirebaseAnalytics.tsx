@@ -12,6 +12,7 @@ export function FirebaseAnalytics() {
     const logPageView = async () => {
       const analyticsInstance = await analytics;
       if (analyticsInstance) {
+        console.log("Logogoggignnggnngng", pathname, document.title, window.innerWidth)
         logEvent(analyticsInstance, "page_view", {
           page_path: pathname,
           page_title: document.title,
