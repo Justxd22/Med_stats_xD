@@ -19,14 +19,33 @@ const AdminPage = () => {
 
   const isToday = toYYYYMMDD(new Date()) === toYYYYMMDD(displayDate);
 
+  // Helper to deduplicate surgeries
+  const deduplicateSurgeries = (roomsData) => {
+    const seen = new Set();
+    return Object.values(roomsData).filter(Boolean).map((room: any) => {
+      if (room.surgeries) {
+        room.surgeries = room.surgeries.filter(surgery => {
+          if (!surgery.nationalId) return true; // Keep if no ID
+          const key = `${surgery.nationalId}-${toYYYYMMDD(new Date(surgery.dateTime))}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }
+      return room;
+    });
+  };
+
   useEffect(() => {
     const fetchArchivedData = (date) => {
       fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
         .then(res => res.json())
         .then(data => {
           if (data && data.rooms && Object.keys(data.rooms).length > 0) {
-            setRooms(Object.values(data.rooms));
-            const allSurgeries = Object.values(data.rooms).filter(room => room).flatMap((room: any) => room.surgeries || []);
+            // Deduplicate archived data too
+            const uniqueRooms = deduplicateSurgeries(data.rooms);
+            setRooms(uniqueRooms);
+            const allSurgeries = uniqueRooms.flatMap((room: any) => room.surgeries || []);
             setHistory(allSurgeries);
           } else {
             const defaultRooms = Array.from({ length: 7 }, (_, i) => ({ id: i + 1, surgeries: [] }));
@@ -47,14 +66,18 @@ const AdminPage = () => {
         const data = snapshot.val();
         if (data) {
           const todayString = toYYYYMMDD(new Date());
-          const filteredRooms = Object.values(data).filter(Boolean).map((room: any) => {
+          // First deduplicate
+          let processedRooms = deduplicateSurgeries(data);
+
+          // Then filter for today
+          processedRooms = processedRooms.map((room: any) => {
             if (room.surgeries) {
               room.surgeries = room.surgeries.filter(surgery => toYYYYMMDD(new Date(surgery.dateTime)) === todayString);
             }
             return room;
           });
-          setRooms(filteredRooms);
-          const allSurgeries = filteredRooms.flatMap((room: any) => room.surgeries || []);
+          setRooms(processedRooms);
+          const allSurgeries = processedRooms.flatMap((room: any) => room.surgeries || []);
           setHistory(allSurgeries);
         }
       });
@@ -82,13 +105,24 @@ const AdminPage = () => {
 
   const handleAddSurgery = async (roomId, surgeryData) => {
     try {
-      await fetch('/api/surgeries', {
+      const res = await fetch('/api/surgeries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomId, surgeryData }),
       });
+
+      if (res.status === 409) {
+        const errorData = await res.json();
+        alert(errorData.error || 'Duplicate surgery detected.');
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error('Failed to add surgery');
+      }
     } catch (error) {
       console.error('Failed to add surgery', error);
+      alert('Failed to add surgery. Please try again.');
     }
   };
 

@@ -28,6 +28,26 @@ export async function POST(request: Request) {
         error: 'Invalid dateTime format' 
       }, { status: 400 });
     }
+
+    // Check for duplicates (Same National ID on the same day)
+    if (surgeryData.nationalId) {
+      const startOfDay = new Date(surgeryDateTime);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(surgeryDateTime);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const duplicateCheck = await firestore.collection('surgeries')
+        .where('nationalId', '==', surgeryData.nationalId)
+        .where('dateTime', '>=', Timestamp.fromDate(startOfDay))
+        .where('dateTime', '<=', Timestamp.fromDate(endOfDay))
+        .get();
+
+      if (!duplicateCheck.empty) {
+        return NextResponse.json({ 
+          error: 'A surgery for this patient is already scheduled for this date.' 
+        }, { status: 409 });
+      }
+    }
     
     const newSurgery = {
       ...surgeryData,
