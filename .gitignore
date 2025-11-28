@@ -40,3 +40,4 @@ next-env.d.ts
 # serviceAccountKey.json
 .env
 serviceAccountKey.json
+DB_BACKUPS
