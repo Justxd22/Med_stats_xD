@@ -42,6 +42,13 @@ export async function POST(request: Request) {
     if (surgeryData.dob) newSurgery.dob = surgeryData.dob;
     if (surgeryData.age) newSurgery.age = surgeryData.age;
     if (surgeryData.surgeonAssistant) newSurgery.surgeonAssistant = surgeryData.surgeonAssistant;
+    
+    if (surgeryData.visualAcuityRight) newSurgery.visualAcuityRight = surgeryData.visualAcuityRight;
+    if (surgeryData.visualAcuityLeft) newSurgery.visualAcuityLeft = surgeryData.visualAcuityLeft;
+    if (surgeryData.refractionRight) newSurgery.refractionRight = surgeryData.refractionRight;
+    if (surgeryData.refractionLeft) newSurgery.refractionLeft = surgeryData.refractionLeft;
+    if (surgeryData.iolPowerRight) newSurgery.iolPowerRight = surgeryData.iolPowerRight;
+    if (surgeryData.iolPowerLeft) newSurgery.iolPowerLeft = surgeryData.iolPowerLeft;
 
     // Write to Realtime DB for live view
     const roomRef = db.ref(`rooms/${roomId}`);

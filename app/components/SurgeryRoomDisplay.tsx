@@ -365,6 +365,13 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     "ط/ ولاء وائل",
     "ط/ يارا نبيل مصطفى ابراهيم"
   ];
+
+  const visualAcuityOptions = [
+    "6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60",
+    "5/60", "4/60", "3/60", "2/60", "1/60",
+    "CF 75 cm", "CF 50 cm", "CF 25 cm",
+    "HM", "PL", "No PL", "can't be assessed"
+  ];
   // ---
 
   const [hospitalName, setHospitalName] = useState('Mansoura University');
@@ -393,6 +400,13 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     dob: null,
     age: null,
     gender: null,
+    // New Fields
+    visualAcuityRight: '',
+    visualAcuityLeft: '',
+    refractionRight: '',
+    refractionLeft: '',
+    iolPowerRight: '',
+    iolPowerLeft: '',
   });
 
   // Effect to parse National ID
@@ -796,6 +810,41 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                                 <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonAssistant}</p>
                                               </div>
                                             </div>
+
+                                            {/* New Data Display */}
+                                            {(surgery.visualAcuityRight || surgery.visualAcuityLeft) && (
+                                              <div className="flex items-start gap-2 border-t border-gray-100 pt-2">
+                                                <div className="flex-1">
+                                                  <p className="text-xs text-gray-500 font-medium">Visual Acuity</p>
+                                                  <div className="flex gap-4 text-xs sm:text-sm font-semibold text-gray-800">
+                                                    {surgery.visualAcuityRight && <span>OD: {surgery.visualAcuityRight}</span>}
+                                                    {surgery.visualAcuityLeft && <span>OS: {surgery.visualAcuityLeft}</span>}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            )}
+                                            {(surgery.refractionRight || surgery.refractionLeft) && (
+                                              <div className="flex items-start gap-2">
+                                                <div className="flex-1">
+                                                  <p className="text-xs text-gray-500 font-medium">Refraction</p>
+                                                  <div className="flex gap-4 text-xs sm:text-sm font-semibold text-gray-800">
+                                                    {surgery.refractionRight && <span>OD: {surgery.refractionRight}</span>}
+                                                    {surgery.refractionLeft && <span>OS: {surgery.refractionLeft}</span>}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            )}
+                                            {(surgery.iolPowerRight || surgery.iolPowerLeft) && (
+                                              <div className="flex items-start gap-2">
+                                                <div className="flex-1">
+                                                  <p className="text-xs text-gray-500 font-medium">IOL Power</p>
+                                                  <div className="flex gap-4 text-xs sm:text-sm font-semibold text-gray-800">
+                                                    {surgery.iolPowerRight && <span>OD: {surgery.iolPowerRight}</span>}
+                                                    {surgery.iolPowerLeft && <span>OS: {surgery.iolPowerLeft}</span>}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            )}
                                           </div>
 
                                           {/* Time Footer */}
@@ -984,6 +1033,61 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                         {eye}
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Visual Acuity */}
+                <div>
+                  <label className="block font-medium mb-2 text-center border-b border-gray-600 pb-1">Visual Acuity</label>
+                  <div className="grid grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Right Eye</label>
+                      <select name="visualAcuityRight" value={formData.visualAcuityRight} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg">
+                        <option value="" disabled>Select VA (OD)</option>
+                        {visualAcuityOptions.map(opt => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Left Eye</label>
+                      <select name="visualAcuityLeft" value={formData.visualAcuityLeft} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-700 rounded-lg">
+                        <option value="" disabled>Select VA (OS)</option>
+                        {visualAcuityOptions.map(opt => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Refraction */}
+                <div>
+                  <label className="block font-medium mb-2 text-center border-b border-gray-600 pb-1">Refraction</label>
+                  <div className="grid grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Right Eye</label>
+                      <input type="text" name="refractionRight" value={formData.refractionRight} onChange={handleInputChange} placeholder="e.g. -1.50" className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Left Eye</label>
+                      <input type="text" name="refractionLeft" value={formData.refractionLeft} onChange={handleInputChange} placeholder="e.g. -1.50" className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* IOL Power */}
+                <div>
+                  <label className="block font-medium mb-2 text-center border-b border-gray-600 pb-1">IOL Power</label>
+                  <div className="grid grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Right Eye</label>
+                      <input type="number" step="0.5" name="iolPowerRight" value={formData.iolPowerRight} onChange={handleInputChange} placeholder="e.g. 22.0" className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Left Eye</label>
+                      <input type="number" step="0.5" name="iolPowerLeft" value={formData.iolPowerLeft} onChange={handleInputChange} placeholder="e.g. 22.0" className="w-full px-4 py-3 bg-gray-700 rounded-lg" />
+                    </div>
                   </div>
                 </div>
 
