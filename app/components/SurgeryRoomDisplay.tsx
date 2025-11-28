@@ -949,7 +949,8 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
           </div>
         )}
 
-        {showAddForm && (
+      
+{showAddForm && (
   <>
     <style>{`
       .slider::-webkit-slider-thumb {
@@ -1016,32 +1017,34 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
       }
     `}</style>
     
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden w-full max-w-5xl max-h-[95vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden w-full max-w-5xl max-h-[98vh] sm:max-h-[95vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 sticky top-0 z-10">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-                <Stethoscope size={32} />
-                Add Surgery - Room {editingRoom}
+        <div className="bg-blue-900 p-4 sm:p-6 sticky top-0 z-10">
+          <div className="flex justify-between items-start sm:items-center gap-2">
+            <div className="flex-1">
+              <h2 className="text-xl sm:text-3xl font-bold text-white flex items-center gap-2 sm:gap-3">
+                <Stethoscope size={24} className="sm:hidden" />
+                <Stethoscope size={32} className="hidden sm:block" />
+                <span className="leading-tight">Add Surgery - Room {editingRoom}</span>
               </h2>
-              <p className="text-blue-100 mt-1">Complete all sections to schedule the surgery</p>
+              <p className="text-blue-100 mt-1 text-xs sm:text-base">Complete all sections to schedule the surgery</p>
             </div>
-            <button onClick={() => setShowAddForm(false)} className="text-white hover:bg-white/20 p-2 rounded-lg transition">
-              <X size={28} />
+            <button onClick={() => setShowAddForm(false)} className="text-white hover:bg-white/20 p-2 rounded-lg transition flex-shrink-0">
+              <X size={24} className="sm:hidden" />
+              <X size={28} className="hidden sm:block" />
             </button>
           </div>
         </div>
 
         {/* Progress Steps */}
-        <div className="bg-gray-750 px-6 py-5 sticky top-[120px] z-10">
+        <div className="bg-gray-750 px-3 sm:px-6 py-4 sm:py-5 sticky top-[88px] sm:top-[120px] z-10">
           <div className="flex items-center justify-between">
             {[
-              { num: 1, title: 'Patient Info', icon: User },
-              { num: 2, title: 'Operation Details', icon: Activity },
-              { num: 3, title: 'Clinical Data', icon: Eye },
-              { num: 4, title: 'Team & Schedule', icon: Calendar }
+              { num: 1, title: 'Patient', fullTitle: 'Patient Info', icon: User },
+              { num: 2, title: 'Operation', fullTitle: 'Operation Details', icon: Activity },
+              { num: 3, title: 'Clinical', fullTitle: 'Clinical Data', icon: Eye },
+              { num: 4, title: 'Team', fullTitle: 'Team & Schedule', icon: Calendar }
             ].map((step, idx) => {
               const isStepComplete = (stepNum) => {
                 switch(stepNum) {
@@ -1061,29 +1064,31 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               return (
                 <React.Fragment key={step.num}>
                   <div className="flex flex-col items-center flex-1">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                       currentStep === step.num 
-                        ? 'bg-blue-600 text-white scale-110 shadow-lg shadow-blue-500/50' 
+                        ? 'bg-blue-500 text-white scale-110 shadow-lg shadow-blue-500/50' 
                         : isStepComplete(step.num)
                         ? 'bg-green-600 text-white'
                         : 'bg-gray-700 text-gray-400'
                     }`}>
                       {isStepComplete(step.num) ? (
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        <step.icon size={20} />
+                        <step.icon size={16} className="sm:hidden" />
                       )}
+                      {!isStepComplete(step.num) && <step.icon size={20} className="hidden sm:block" />}
                     </div>
-                    <span className={`text-xs mt-2 font-medium text-center ${
+                    <span className={`text-[10px] sm:text-xs mt-1 sm:mt-2 font-medium text-center ${
                       currentStep === step.num ? 'text-blue-400' : 'text-gray-400'
                     }`}>
-                      {step.title}
+                      <span className="sm:hidden">{step.title}</span>
+                      <span className="hidden sm:inline">{step.fullTitle}</span>
                     </span>
                   </div>
                   {idx < 3 && (
-                    <div className={`h-1 flex-1 mx-2 rounded transition-all duration-300 ${
+                    <div className={`h-0.5 sm:h-1 flex-1 mx-1 sm:mx-2 rounded transition-all duration-300 ${
                       isStepComplete(step.num) ? 'bg-green-600' : 'bg-gray-700'
                     }`} />
                   )}
@@ -1094,11 +1099,11 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
         </div>
 
         {/* Form Content */}
-        <div className="p-8">
+        <div className="p-4 sm:p-8">
           {/* Step 1: Patient Info */}
           {currentStep === 1 && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4 sm:space-y-6 animate-fadeIn">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div className="group">
                   <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                     <User size={16} className="text-blue-400" />
@@ -1143,41 +1148,44 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
 
               {/* Parsed ID Info Card */}
               {formData.age !== null && (
-                <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700/50 rounded-xl p-6 animate-slideIn">
-                  <p className="text-sm text-gray-400 mb-4 flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700/50 rounded-xl p-4 sm:p-6 animate-slideIn">
+                  <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     Patient information extracted from National ID
                   </p>
-                  <div className="grid grid-cols-3 gap-6">
-                    <div className="flex items-center gap-4 bg-gray-800/50 rounded-lg p-4">
-                      <div className={`p-3 rounded-lg ${formData.gender === 'Male' ? 'bg-blue-600/20' : 'bg-pink-600/20'}`}>
-                        <User size={24} className={formData.gender === 'Male' ? 'text-blue-400' : 'text-pink-400'} />
+                  <div className="grid grid-cols-3 gap-2 sm:gap-6">
+                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-gray-800/50 rounded-lg p-2 sm:p-4">
+                      <div className={`p-2 sm:p-3 rounded-lg ${formData.gender === 'Male' ? 'bg-blue-500/20' : 'bg-pink-600/20'}`}>
+                        <User size={20} className={`sm:hidden ${formData.gender === 'Male' ? 'text-blue-400' : 'text-pink-400'}`} />
+                        <User size={24} className={`hidden sm:block ${formData.gender === 'Male' ? 'text-blue-400' : 'text-pink-400'}`} />
                       </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Gender</p>
-                        <p className="text-lg font-bold text-white">{formData.gender}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 bg-gray-800/50 rounded-lg p-4">
-                      <div className="p-3 rounded-lg bg-purple-600/20">
-                        <Cake size={24} className="text-purple-400" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Date of Birth</p>
-                        <p className="text-lg font-bold text-white">{formData.dob}</p>
+                      <div className="text-center sm:text-left">
+                        <p className="text-[10px] sm:text-xs text-gray-400">Gender</p>
+                        <p className="text-sm sm:text-lg font-bold text-white">{formData.gender}</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4 bg-gray-800/50 rounded-lg p-4">
-                      <div className="p-3 rounded-lg bg-green-600/20">
-                        <Calendar size={24} className="text-green-400" />
+                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-gray-800/50 rounded-lg p-2 sm:p-4">
+                      <div className="p-2 sm:p-3 rounded-lg bg-purple-600/20">
+                        <Cake size={20} className="text-purple-400 sm:hidden" />
+                        <Cake size={24} className="text-purple-400 hidden sm:block" />
                       </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Age</p>
-                        <p className="text-lg font-bold text-white">{formData.age} years</p>
+                      <div className="text-center sm:text-left">
+                        <p className="text-[10px] sm:text-xs text-gray-400">DOB</p>
+                        <p className="text-xs sm:text-lg font-bold text-white">{formData.dob}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-gray-800/50 rounded-lg p-2 sm:p-4">
+                      <div className="p-2 sm:p-3 rounded-lg bg-green-600/20">
+                        <Calendar size={20} className="text-green-400 sm:hidden" />
+                        <Calendar size={24} className="text-green-400 hidden sm:block" />
+                      </div>
+                      <div className="text-center sm:text-left">
+                        <p className="text-[10px] sm:text-xs text-gray-400">Age</p>
+                        <p className="text-sm sm:text-lg font-bold text-white">{formData.age} <span className="text-xs sm:text-base">yrs</span></p>
                       </div>
                     </div>
                   </div>
@@ -1190,14 +1198,14 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                   <Activity size={16} className="text-blue-400" />
                   Anesthesia Type *
                 </label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   {['Local', 'General'].map(type => (
                     <button
                       key={type}
                       onClick={() => setFormData({...formData, anesthesiaType: type})}
-                      className={`px-6 py-4 rounded-xl text-lg font-medium transition-all duration-200 ${
+                      className={`px-4 sm:px-6 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-medium transition-all duration-200 ${
                         formData.anesthesiaType === type
-                          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/50 scale-105'
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-lg shadow-blue-500/50 scale-105'
                           : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700 border border-gray-600'
                       }`}
                     >
@@ -1211,8 +1219,8 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
 
           {/* Step 2: Operation Details */}
           {currentStep === 2 && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4 sm:space-y-6 animate-fadeIn">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Operation Collection *</label>
                   <select
@@ -1250,15 +1258,15 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                   <Eye size={16} className="text-blue-400" />
                   Eye Selection *
                 </label>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {['Left Eye', 'Right Eye', 'Bilateral Eye'].map(eye => (
                     <button
                       key={eye}
                       onClick={() => setFormData({...formData, eye: eye})}
                       disabled={!formData.operationCollection}
-                      className={`px-6 py-4 rounded-xl text-base font-medium transition-all duration-200 ${
+                      className={`px-4 sm:px-6 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-medium transition-all duration-200 ${
                         formData.eye === eye
-                          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/50 scale-105'
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-lg shadow-blue-500/50 scale-105'
                           : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700 border border-gray-600'
                       } disabled:opacity-30 disabled:cursor-not-allowed`}
                     >
@@ -1272,14 +1280,15 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
 
           {/* Step 3: Clinical Data */}
           {currentStep === 3 && (
-            <div className="space-y-8 animate-fadeIn">
+            <div className="space-y-6 sm:space-y-8 animate-fadeIn">
               {/* Visual Acuity */}
-              <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
-                <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Eye size={20} className="text-blue-400" />
+              <div className="bg-gray-700/30 rounded-xl p-4 sm:p-6 border border-gray-600">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+                  <Eye size={18} className="text-blue-400 sm:hidden" />
+                  <Eye size={20} className="text-blue-400 hidden sm:block" />
                   Visual Acuity *
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm text-gray-400 mb-2">Right Eye (OD)</label>
                     <select
@@ -1312,13 +1321,13 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               </div>
 
               {/* Refraction */}
-              <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
-                <h4 className="text-lg font-semibold text-white mb-4">Refraction</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-700/30 rounded-xl p-4 sm:p-6 border border-gray-600">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Refraction</h4>
+                <div className="grid grid-cols-1 gap-6">
                   <div>
                     <div className="flex justify-between items-center mb-3">
                       <label className="text-sm text-gray-400">Right Eye (OD)</label>
-                      <span className="text-xl font-bold text-white bg-gray-800 px-4 py-1 rounded-lg min-w-[80px] text-center">
+                      <span className="text-lg sm:text-xl font-bold text-white bg-gray-800 px-3 sm:px-4 py-1 rounded-lg min-w-[70px] sm:min-w-[80px] text-center">
                         {formData.refractionRight || '0.00'}
                       </span>
                     </div>
@@ -1341,7 +1350,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                   <div>
                     <div className="flex justify-between items-center mb-3">
                       <label className="text-sm text-gray-400">Left Eye (OS)</label>
-                      <span className="text-xl font-bold text-white bg-gray-800 px-4 py-1 rounded-lg min-w-[80px] text-center">
+                      <span className="text-lg sm:text-xl font-bold text-white bg-gray-800 px-3 sm:px-4 py-1 rounded-lg min-w-[70px] sm:min-w-[80px] text-center">
                         {formData.refractionLeft || '0.00'}
                       </span>
                     </div>
@@ -1365,13 +1374,13 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               </div>
 
               {/* IOL Power */}
-              <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
-                <h4 className="text-lg font-semibold text-white mb-4">IOL Power</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-700/30 rounded-xl p-4 sm:p-6 border border-gray-600">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">IOL Power</h4>
+                <div className="grid grid-cols-1 gap-6">
                   <div>
                     <div className="flex justify-between items-center mb-3">
                       <label className="text-sm text-gray-400">Right Eye (OD)</label>
-                      <span className="text-xl font-bold text-white bg-gray-800 px-4 py-1 rounded-lg min-w-[80px] text-center">
+                      <span className="text-lg sm:text-xl font-bold text-white bg-gray-800 px-3 sm:px-4 py-1 rounded-lg min-w-[70px] sm:min-w-[80px] text-center">
                         {formData.iolPowerRight || '0.0'}
                       </span>
                     </div>
@@ -1394,7 +1403,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                   <div>
                     <div className="flex justify-between items-center mb-3">
                       <label className="text-sm text-gray-400">Left Eye (OS)</label>
-                      <span className="text-xl font-bold text-white bg-gray-800 px-4 py-1 rounded-lg min-w-[80px] text-center">
+                      <span className="text-lg sm:text-xl font-bold text-white bg-gray-800 px-3 sm:px-4 py-1 rounded-lg min-w-[70px] sm:min-w-[80px] text-center">
                         {formData.iolPowerLeft || '0.0'}
                       </span>
                     </div>
@@ -1421,8 +1430,8 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
 
           {/* Step 4: Team & Schedule */}
           {currentStep === 4 && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4 sm:space-y-6 animate-fadeIn">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                     <Stethoscope size={16} className="text-blue-400" />
@@ -1475,24 +1484,23 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               </div>
 
               {/* Summary Card */}
-              <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700/50 rounded-xl p-6 mt-8">
-                <h4 className="text-lg font-semibold text-white mb-4">Surgery Summary</h4>
+              <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700/50 rounded-xl p-4 sm:p-6 mt-6 sm:mt-8">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Surgery Summary</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-400">Patient:</span>
-                    <span className="text-white font-medium">{formData.patientName || 'Not set'}</span>
+                    <span className="text-white font-medium text-right">{formData.patientName || 'Not set'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Operation:</span>
-                    <span className="text-white font-medium">{formData.operationName || 'Not set'}</span>
+                    <span className="text-white font-medium text-right">{formData.operationName || 'Not set'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Eye:</span>
-                    <span className="text-white font-medium">{formData.eye || 'Not set'}</span>
-                  </div>
+                    <span className="text-white font-medium text-right">{formData.eye || 'Not set'}</span></div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Surgeon:</span>
-                    <span className="text-white font-medium">{formData.surgeonName || 'Not set'}</span>
+                    <span className="text-white font-medium text-right">{formData.surgeonName || 'Not set'}</span>
                   </div>
                 </div>
               </div>
@@ -1501,16 +1509,16 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
         </div>
 
         {/* Navigation Footer */}
-        <div className="bg-gray-750 px-8 py-6 flex justify-between items-center border-t border-gray-700 sticky bottom-0">
+        <div className="bg-gray-750 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center border-t border-gray-700 sticky bottom-0">
           <button
             onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
             disabled={currentStep === 1}
-            className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
           >
             Previous
           </button>
           
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
             Step {currentStep} of 4
           </div>
 
@@ -1529,7 +1537,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                     return false;
                 }
               })()}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
             >
               Next
             </button>
@@ -1537,7 +1545,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
             <button
               onClick={onAddSurgery}
               disabled={!(formData.surgeonName && formData.dateTime)}
-              className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg"
+              className="px-4 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg text-sm sm:text-base"
             >
               Add Surgery
             </button>
