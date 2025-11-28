@@ -862,12 +862,14 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                             >
                                               <Pencil size={14} className="sm:w-4 sm:h-4" />
                                             </button>
-                                              <button
+
+                                            {isAdmin && <button
                                                 onClick={() => handleRemoveSurgery(room.id, surgery.id)}
                                                 className="hover:text-red-500"
                                               >
                                                 <Trash2 size={14} className="sm:w-4 sm:h-4" />
                                               </button>
+                                            }
                                             </div>
                                             </div>
                                           </div>
