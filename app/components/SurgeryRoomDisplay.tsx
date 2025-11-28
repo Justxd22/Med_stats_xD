@@ -1,7 +1,7 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, X, Clock, CheckCircle, Pencil, Link, ChevronLeft, ChevronRight, User, Cake } from 'lucide-react';
+import { Search, Plus, X, Clock, CheckCircle, Pencil, Link, ChevronLeft, ChevronRight, User, Cake, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
@@ -805,13 +805,19 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                               <span className="text-xs sm:text-sm font-semibold">
                                                 {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                               </span>
-                                              <div className="flex justify-end">
+                                              <div className="flex justify-end gap-2">
                                             <button
                                               onClick={() => setEditingSurgery(surgery)}
-                                              className="text-gray-400 hover:text-blue-500"
+                                              className="hover:text-blue-500"
                                             >
                                               <Pencil size={14} className="sm:w-4 sm:h-4" />
                                             </button>
+                                              <button
+                                                onClick={() => handleRemoveSurgery(room.id, surgery.id)}
+                                                className="hover:text-red-500"
+                                              >
+                                                <Trash2 size={14} className="sm:w-4 sm:h-4" />
+                                              </button>
                                             </div>
                                             </div>
                                           </div>
