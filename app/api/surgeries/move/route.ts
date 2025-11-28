@@ -21,7 +21,16 @@ export async function POST(request: Request) {
     const destinationRoomRef = db.ref(`rooms/${destinationRoomId}`);
     const destinationSnapshot = await destinationRoomRef.once('value');
     const destinationRoom = destinationSnapshot.val();
-    const updatedDestinationSurgeries = [...(destinationRoom.surgeries || []), { ...surgeryToMove, roomId: destinationRoomId }];
+
+    // Check if surgery already exists in destination to prevent duplicates
+    const alreadyInDest = destinationRoom.surgeries?.some((s: any) => s.id.toString() === surgeryId);
+    
+    let updatedDestinationSurgeries;
+    if (alreadyInDest) {
+      updatedDestinationSurgeries = destinationRoom.surgeries;
+    } else {
+      updatedDestinationSurgeries = [...(destinationRoom.surgeries || []), { ...surgeryToMove, roomId: destinationRoomId }];
+    }
 
     const liveUpdates = {};
     liveUpdates[`/rooms/${sourceRoomId}/surgeries`] = updatedSourceSurgeries;
