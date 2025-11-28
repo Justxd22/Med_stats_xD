@@ -41,7 +41,7 @@ const ViewerPage = () => {
     const resetInactivityTimer = () => {
       clearTimeout(inactivityTimer);
       if (!isToday) {
-        inactivityTimer = setTimeout(resetToToday, 5000); // 5 seconds
+        inactivityTimer = setTimeout(resetToToday, 30000); // 5 seconds
       }
     };
 
