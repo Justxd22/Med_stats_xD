@@ -1,51 +1,60 @@
 import { NextResponse } from 'next/server';
-import { db, firestore } from '../../../../lib/firebase-admin';
+import { db, firestore } from '@/lib/firebase-admin';
+import { getFreshRoom } from '@/lib/maintenance';
 
-export async function PUT(request: Request, context: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const { id } = await params;
+  const { roomId, newStatus } = await request.json();
+
   try {
-    const { roomId, newStatus } = await request.json();
-    const params = await context.params;
-    const surgeryId = params.id;
+    // Smart Fetch (Clean if stale)
+    const room = await getFreshRoom(roomId);
 
-    // Update Realtime DB
-    const roomRef = db.ref(`rooms/${roomId}`);
-    const snapshot = await roomRef.once('value');
-    const room = snapshot.val();
+    if (!room || !room.surgeries) {
+       return NextResponse.json({ error: 'Room not found or empty' }, { status: 404 });
+    }
 
-    const updatedSurgeries = room.surgeries.map((s: any) =>
-      s.id.toString() === surgeryId ? { ...s, status: newStatus } : s
-    );
-    await roomRef.child('surgeries').set(updatedSurgeries);
+    const updatedSurgeries = room.surgeries.map((s: any) => {
+      if (s.id.toString() === id) {
+        return { ...s, status: newStatus };
+      }
+      return s;
+    });
+
+    await db.ref(`rooms/${roomId}/surgeries`).set(updatedSurgeries);
 
     // Update Firestore
-    await firestore.collection('surgeries').doc(surgeryId).update({ status: newStatus });
+    await firestore.collection('surgeries').doc(id).update({ status: newStatus });
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Error updating surgery:", error);
     return NextResponse.json({ error: 'Failed to update surgery' }, { status: 500 });
   }
 }
 
-export async function DELETE(request: Request, context: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const { id } = await params;
+  const { roomId } = await request.json();
+
   try {
-    const { roomId } = await request.json();
-    const params = await context.params;
-    const surgeryId = params.id;
+    // Smart Fetch (Clean if stale)
+    const room = await getFreshRoom(roomId);
+    
+    if (!room || !room.surgeries) {
+       return NextResponse.json({ success: true }); // Already gone or empty
+    }
 
-    // Update Realtime DB
-    const roomRef = db.ref(`rooms/${roomId}`);
-    const snapshot = await roomRef.once('value');
-    const room = snapshot.val();
+    const updatedSurgeries = room.surgeries.filter((s: any) => s.id.toString() !== id);
 
-    const updatedSurgeries = room.surgeries.filter((s: any) => s.id.toString() !== surgeryId);
+    await db.ref(`rooms/${roomId}/surgeries`).set(updatedSurgeries);
 
-    await roomRef.child('surgeries').set(updatedSurgeries);
-
-    // Delete from Firestore
-    await firestore.collection('surgeries').doc(surgeryId).delete();
+    // Remove from Firestore
+    await firestore.collection('surgeries').doc(id).delete();
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Error deleting surgery:", error);
     return NextResponse.json({ error: 'Failed to delete surgery' }, { status: 500 });
   }
 }

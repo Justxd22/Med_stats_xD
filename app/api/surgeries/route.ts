@@ -1,7 +1,8 @@
 
 import { NextResponse } from 'next/server';
-import { db, firestore } from '../../../lib/firebase-admin';
+import { db, firestore } from '@/lib/firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
+import { getFreshRoom } from '@/lib/maintenance';
 
 export async function GET() {
   try {
@@ -71,15 +72,14 @@ export async function POST(request: Request) {
     if (surgeryData.iolPowerLeft) newSurgery.iolPowerLeft = surgeryData.iolPowerLeft;
 
     // Write to Realtime DB for live view
-    const roomRef = db.ref(`rooms/${roomId}`);
-    const snapshot = await roomRef.once('value');
-    const room = snapshot.val();
+    // Use Smart Getter to ensure DB is fresh before writing
+    const room = await getFreshRoom(roomId);
 
     const updatedSurgeries = [...(room.surgeries || []), newSurgery].sort((a, b) =>
       new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
     );
 
-    await roomRef.child('surgeries').set(updatedSurgeries);
+    await db.ref(`rooms/${roomId}/surgeries`).set(updatedSurgeries);
 
     // Write to Firestore for archive with Timestamp
     const surgeryForFirestore = {
