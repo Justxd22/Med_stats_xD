@@ -139,14 +139,49 @@ const ViewerPage = () => {
   };
 
   const handleMoveSurgery = async (surgeryId, sourceRoomId, destinationRoomId) => {
+    // 1. Optimistic Update
+    const previousRooms = [...rooms];
+    
+    const updatedRooms = rooms.map((room: any) => {
+      // Create a shallow copy of the room and its surgeries array
+      const newRoom = { ...room, surgeries: [...(room.surgeries || [])] };
+      
+      // If this is the source room, remove the surgery
+      if (String(room.id) === String(sourceRoomId)) {
+        newRoom.surgeries = newRoom.surgeries.filter((s: any) => String(s.id) !== String(surgeryId));
+      }
+      
+      // If this is the destination room, add the surgery
+      if (String(room.id) === String(destinationRoomId)) {
+        // Find the surgery object from the previous state
+        const sourceRoom = rooms.find((r: any) => String(r.id) === String(sourceRoomId));
+        const surgery = sourceRoom?.surgeries?.find((s: any) => String(s.id) === String(surgeryId));
+        
+        if (surgery) {
+          newRoom.surgeries.push({ ...surgery, roomId: destinationRoomId });
+        }
+      }
+      
+      return newRoom;
+    });
+
+    setRooms(updatedRooms);
+
     try {
-      await fetch('/api/surgeries/move', {
+      const res = await fetch('/api/surgeries/move', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ surgeryId, sourceRoomId, destinationRoomId }),
       });
+
+      if (!res.ok) {
+        throw new Error('Failed to move surgery');
+      }
     } catch (error) {
       console.error('Failed to move surgery', error);
+      // Rollback on failure
+      setRooms(previousRooms);
+      alert("Failed to move surgery. Reverting changes.");
     }
   };
 
