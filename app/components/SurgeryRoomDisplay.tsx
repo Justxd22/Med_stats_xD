@@ -167,7 +167,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     <div className="min-h-screen bg-gray-900 p-2 sm:p-4">
       <div className="max-w-full mx-auto pb-24 sm:pb-32">
         {/* Hospital Header */} 
-        <div className="bg-white text-white p-2 rounded-lg shadow-2xl mb-4">
+        <div className="bg-white text-white p-2 rounded-lg shadow-2xl mb-1">
           {/* Mobile Header */}
           <div className="sm:hidden flex justify-between items-center">
             <div className="text-left flex-1">
@@ -280,7 +280,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                   <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
                 </div>
               )}
-              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4 transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
+              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-2 sm:gap-3 transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
               {rooms.filter(room => room).map(room => {
                 const currentSurgery = getCurrentSurgery(room.surgeries);
                               const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
@@ -288,12 +288,12 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                               const incompleteSurgeriesInRoom = totalSurgeriesInRoom - completedSurgeriesInRoom;
                 return (
                   <div key={room.id} className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
-                    <div className={`bg-white text-white p-2 sm:p-2 flex justify-between items-center`}>
+                    <div className={`bg-white text-white p-1.5 sm:p-2 flex justify-between items-center`}>
                     <div>
                       <h2
-                        className={`font-bold text-gray-800 ${room.id === 6
-                            ? "text-lg sm:text-xl"
-                            : "text-xl sm:text-2xl"
+                        className={`font-bold text-gray-800 leading-tight ${room.id === 6
+                            ? "text-base sm:text-lg"
+                            : "text-lg sm:text-xl"
                           }`}
                       >
                         {room.id === 6
@@ -326,9 +326,9 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                             setInitialFormDate(defaultDateTime);
                             setShowAddForm(true);
                           }}
-                          className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg bg-black"
+                          className="bg-opacity-30 hover:bg-opacity-40 p-1.5 rounded-lg bg-black"
                         >
-                          <Pencil size={18} className="sm:w-5 sm:h-5" />
+                          <Pencil size={16} className="sm:w-4 sm:h-4" />
                         </button>}
                       </div>
                       <div className="flex items-center gap-4">
@@ -345,15 +345,16 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                         <div 
                           ref={provided.innerRef} 
                           {...provided.droppableProps}
-                          className="p-3 sm:p-4 h-full"
+                          className="p-2 sm:p-2.5 h-full"
                         >
                           {room.surgeries && room.surgeries.length > 0 ? (
-                                                  <div className="space-y-2 sm:space-y-3">
-                                                    {room.surgeries.sort((a, b) => {
-                                                      if (a.status === 'completed' && b.status !== 'completed') return 1;
-                                                      if (b.status === 'completed' && a.status !== 'completed') return -1;
-                                                      return new Date(a.dateTime) - new Date(b.dateTime);
-                                                    }).map((surgery, index) => {                            const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
+                            <div className="space-y-1.5 sm:space-y-2">
+                              {room.surgeries.sort((a, b) => {
+                                if (a.status === 'completed' && b.status !== 'completed') return 1;
+                                if (b.status === 'completed' && a.status !== 'completed') return -1;
+                                return new Date(a.dateTime) - new Date(b.dateTime);
+                              }).map((surgery, index) => {
+                                const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
                                 return (
                                   <Draggable key={surgery.id} draggableId={surgery.id.toString()} index={index} isDragDisabled={!canEdit}>
                                     {(provided) => (
@@ -362,93 +363,91 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                       >
-                                        <div className={`rounded-xl shadow-md hover:shadow-lg transition-shadow ${getStatusColor(surgery, currentSurgery)} overflow-hidden`}>
+                                        <div className={`rounded-lg shadow-md hover:shadow-lg transition-shadow ${getStatusColor(surgery, currentSurgery)} overflow-hidden`}>
 
-                                          {/* Patient Details Section */}
-                                          <div className="px-2 sm:px-2 pb-3 border-b border-gray-200">
-                                            <h3 className="font-bold text-base sm:text-lg lg:text-xl mb-1 mt-1" dir="auto">
-                                              {surgery.patientName}
-                                            </h3>
-                                            <div className="flex items-center gap-2 text-xs sm:text-sm ">
-                                              <span className="font-medium">{surgery.age}yr</span>
-                                              <span>/</span>
-                                              <span className="font-medium">{surgery.gender === 'Male' ? 'M' : 'F'}</span>
-                                              <span>/</span>
-                                              <span className="font-medium">{formatDisplayDob(surgery.dob)}</span>
+                                          {/* Compact Patient Header */}
+                                          <div className="px-2 py-1.5 border-b border-gray-200">
+                                            <div className="flex justify-between items-start gap-2">
+                                              <div className="flex-1 min-w-0">
+                                                <h3 className="font-bold text-sm sm:text-base leading-tight truncate" dir="auto">
+                                                  {surgery.patientName}
+                                                </h3>
+                                                <div className="flex items-center gap-1.5 text-xs mt-0.5">
+                                                  <span className="font-bold">{surgery.age}y</span>
+                                                  <span>/</span>
+                                                  <span className="font-bold">{surgery.gender === 'Male' ? 'M' : 'F'}</span>
+                                                  <span>/</span>
+                                                  <span className="font-bold">{formatDisplayDob(surgery.dob)}</span>
+                                                  <span className="text-xs font-bold text-gray-700 bg-gray-200 px-2 py-0.5 rounded ml-auto">{surgery.eye}</span>
+                                              </div>
+                                              </div>
+
                                             </div>
                                           </div>
 
-                                          {/* Surgery Details Section */}
-                                          <div className="px-2 sm:px-2 py-3 bg-gray-50 space-y-2">
-                                            <div className="flex items-start gap-2">
-
-                                              <div className="flex-1">
-                                                <p className="text-xs text-gray-500 font-medium">Operation</p>
-                                                <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.operationName}</p>
+                                          {/* Ultra-Compact Surgery Details */}
+                                          <div className="px-2 py-1.5 bg-gray-50 space-y-1">
+                                            {/* Operation & Eye in one line */}
+                                            <div className="flex gap-2 items-center">
+                                              <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-semibold text-gray-800" dir="auto">{surgery.operationName}</p>
                                               </div>
+
                                             </div>
 
-                                            <div className="flex items-start gap-2">
-                                              <div className="flex-1">
-                                                <p className="text-xs text-gray-500 font-medium">Eye</p>
-                                                <p className="text-sm sm:text-base font-semibold text-gray-800">{surgery.eye}</p>
-                                              </div>
+                                            {/* Surgeon */}
+                                            <div>
+                                              <p className="text-xs text-black rtl-ellipsis" dir="auto">
+                                                <span className="font-bold"></span> {surgery.surgeonName}
+                                              </p>
                                             </div>
 
-                                            <div className="flex items-start gap-2">
-                                              <div className="flex-1">
-                                                <p className="text-xs text-gray-500 font-medium">Surgeon</p>
-                                                <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonName}</p>
-                                              </div>
+                                            {/* Assistant */}
+                                            <div>
+                                              <p className="text-xs text-black rtl-ellipsis" dir="auto">
+                                                <span className="font-bold"></span> {surgery.surgeonAssistant}
+                                              </p>
                                             </div>
 
-                                            <div className="flex items-start gap-2">
-                                              <div className="flex-1">
-                                                <p className="text-xs text-gray-500 font-medium">Surgeon Assistant</p>
-                                                <p className="text-sm sm:text-base font-semibold text-gray-800" dir="auto">{surgery.surgeonAssistant}</p>
-                                              </div>
-                                            </div>
-
-                                            {/* New Data Display */}
-                                            {(surgery.visualAcuityRight || surgery.visualAcuityLeft) && (
-                                              <div className="flex items-start gap-2 border-t border-gray-100 pt-2">
-                                                <div className="flex-1">
-                                                  <p className="text-xs text-gray-500 font-medium">Visual Acuity</p>
-                                                  <div className="flex gap-4 text-xs sm:text-sm font-semibold text-gray-800">
-                                                    {surgery.visualAcuityRight && <span>OD: {surgery.visualAcuityRight}</span>}
-                                                    {surgery.visualAcuityLeft && <span>OS: {surgery.visualAcuityLeft}</span>}
+                                            {/* Visual/Refraction/IOL in compact grid */}
+                                            {(surgery.visualAcuityRight || surgery.visualAcuityLeft || 
+                                              surgery.refractionRight || surgery.refractionLeft || 
+                                              surgery.iolPowerRight || surgery.iolPowerLeft) && (
+                                              <div className="grid grid-cols-3 gap-1 pt-1 border-t border-gray-200">
+                                                {/* Visual Acuity Column */}
+                                                {(surgery.visualAcuityRight || surgery.visualAcuityLeft) && (
+                                                  <div className="text-xs">
+                                                    <p className="text-gray-500 font-medium mb-0.5">VA</p>
+                                                    {surgery.visualAcuityRight && <p className="text-gray-800 truncate">R:{surgery.visualAcuityRight}</p>}
+                                                    {surgery.visualAcuityLeft && <p className="text-gray-800 truncate">L:{surgery.visualAcuityLeft}</p>}
                                                   </div>
-                                                </div>
-                                              </div>
-                                            )}
-                                            {(surgery.refractionRight || surgery.refractionLeft) && (
-                                              <div className="flex items-start gap-2">
-                                                <div className="flex-1">
-                                                  <p className="text-xs text-gray-500 font-medium">Refraction</p>
-                                                  <div className="flex gap-4 text-xs sm:text-sm font-semibold text-gray-800">
-                                                    {surgery.refractionRight && <span>OD: {surgery.refractionRight}</span>}
-                                                    {surgery.refractionLeft && <span>OS: {surgery.refractionLeft}</span>}
+                                                )}
+                                                
+                                                {/* Refraction Column */}
+                                                {(surgery.refractionRight || surgery.refractionLeft) && (
+                                                  <div className="text-xs">
+                                                    <p className="text-gray-500 font-medium mb-0.5">Ref</p>
+                                                    {surgery.refractionRight && <p className="text-gray-800 truncate">R:{surgery.refractionRight}</p>}
+                                                    {surgery.refractionLeft && <p className="text-gray-800 truncate">L:{surgery.refractionLeft}</p>}
                                                   </div>
-                                                </div>
-                                              </div>
-                                            )}
-                                            {(surgery.iolPowerRight || surgery.iolPowerLeft) && (
-                                              <div className="flex items-start gap-2">
-                                                <div className="flex-1">
-                                                  <p className="text-xs text-gray-500 font-medium">IOL Power</p>
-                                                  <div className="flex gap-4 text-xs sm:text-sm font-semibold text-gray-800">
-                                                    {surgery.iolPowerRight && <span>OD: {surgery.iolPowerRight}</span>}
-                                                    {surgery.iolPowerLeft && <span>OS: {surgery.iolPowerLeft}</span>}
+                                                )}
+                                                
+                                                {/* IOL Column */}
+                                                {(surgery.iolPowerRight || surgery.iolPowerLeft) && (
+                                                  <div className="text-xs">
+                                                    <p className="text-gray-500 font-medium mb-0.5">IOL</p>
+                                                    {surgery.iolPowerRight && <p className="text-gray-800 truncate">R:{surgery.iolPowerRight}</p>}
+                                                    {surgery.iolPowerLeft && <p className="text-gray-800 truncate">L:{surgery.iolPowerLeft}</p>}
                                                   </div>
-                                                </div>
+                                                )}
                                               </div>
                                             )}
                                           </div>
 
-                                          {/* Time Footer */}
-                                          <div className="px-3 sm:px-4 py-2.5 bg-gradient-to-r border-t border-blue-100">
+                                          {/* Compact Action Footer */}
+                                          <div className="px-2 py-1 bg-gradient-to-r border-t border-blue-100 gap-1.5">
                                             <div className="flex items-center justify-center gap-2 ">
-                                              <Clock size={14} className="sm:w-4 sm:h-4" />
+                                              <Clock size={12} className="sm:w-3.5 sm:h-3.5" />
                                               <span className="text-xs sm:text-sm font-semibold">
                                                 {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                               </span>
