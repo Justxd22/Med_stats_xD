@@ -90,6 +90,7 @@ const AdminPage = () => {
   }, [deduplicateSurgeries, mergeWithDefaultRooms]);
 
   useEffect(() => {
+    let debounceTimer;
     if (isToday) {
       const roomsRef = ref(database, 'rooms');
       const unsubscribe = onValue(roomsRef, (snapshot) => {
@@ -123,8 +124,12 @@ const AdminPage = () => {
       
       return () => unsubscribe();
     } else {
-      fetchArchivedData(displayDate);
+      // Debounce fetch for future/past dates
+      debounceTimer = setTimeout(() => {
+        fetchArchivedData(displayDate);
+      }, 1300); 
     }
+    return () => clearTimeout(debounceTimer);
   }, [displayDate, isToday, deduplicateSurgeries, fetchArchivedData, mergeWithDefaultRooms]);
 
   const handlePrevDay = () => {

@@ -146,7 +146,7 @@ const ViewerPage = () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         fetchArchivedData(displayDate);
-      }, 1000); // 1-second debounce
+      }, 1300); // 1-second debounce
 
       window.addEventListener('mousemove', resetInactivityTimer);
       window.addEventListener('keydown', resetInactivityTimer);
