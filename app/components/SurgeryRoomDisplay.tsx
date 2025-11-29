@@ -31,7 +31,7 @@ const parseNationalId = (id) => {
   }
 };
 
-const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true, displayDate = new Date(), handlePrevDay = () => {}, handleNextDay = () => {}, isToday = true }) => {
+const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true, isEditable = true, displayDate = new Date(), handlePrevDay = () => {}, handleNextDay = () => {}, isToday = true }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
   
   // --- Definitive Operation Data ---
@@ -373,6 +373,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
     "HM", "PL", "No PL", "can't be assessed"
   ];
   // ---
+  const canEdit = isEditable;
 
   const [hospitalName, setHospitalName] = useState('Mansoura University');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -505,6 +506,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
       eye: 'Left Eye',
     });
     setShowAddForm(false);
+    setCurrentStep(1);
     setEditingRoom(null);
   }
 
@@ -724,9 +726,28 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                             ? "ICU"
                             : `ROOM${room.id}`}
                       </h2>
-                      {isAdmin && <button
+                      {canEdit && isAdmin && <button
                           onClick={() => {
                             setEditingRoom(room.id);
+                            
+                            // Calculate default date time
+                            const year = displayDate.getFullYear();
+                            const month = String(displayDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(displayDate.getDate()).padStart(2, '0');
+                            const formattedDisplayDate = `${year}-${month}-${day}`;
+                            
+                            const today = new Date();
+                            const todayYear = today.getFullYear();
+                            const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+                            const todayDay = String(today.getDate()).padStart(2, '0');
+                            const formattedToday = `${todayYear}-${todayMonth}-${todayDay}`;
+                            
+                            let defaultDateTime = '';
+                            if (formattedDisplayDate !== formattedToday) {
+                                defaultDateTime = `${formattedDisplayDate}T09:00`;
+                            }
+
+                            setFormData(prev => ({ ...prev, dateTime: defaultDateTime }));
                             setShowAddForm(true);
                           }}
                           className="bg-opacity-30 hover:bg-opacity-40 p-2 rounded-lg bg-black"
@@ -758,7 +779,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                                       return new Date(a.dateTime) - new Date(b.dateTime);
                                                     }).map((surgery, index) => {                            const isCurrent = currentSurgery && currentSurgery.id === surgery.id;
                                 return (
-                                  <Draggable key={surgery.id} draggableId={surgery.id.toString()} index={index}>
+                                  <Draggable key={surgery.id} draggableId={surgery.id.toString()} index={index} isDragDisabled={!canEdit}>
                                     {(provided) => (
                                       <div
                                         ref={provided.innerRef}
@@ -856,14 +877,14 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                                 {new Date(surgery.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                               </span>
                                               <div className="flex justify-end gap-2">
-                                            <button
+                                            {canEdit && <button
                                               onClick={() => setEditingSurgery(surgery)}
                                               className="hover:text-blue-500"
                                             >
                                               <Pencil size={14} className="sm:w-4 sm:h-4" />
-                                            </button>
+                                            </button>}
 
-                                            {isAdmin && <button
+                                            {canEdit && isAdmin && <button
                                                 onClick={() => handleRemoveSurgery(room.id, surgery.id)}
                                                 className="hover:text-red-500"
                                               >
@@ -1032,7 +1053,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
               </h2>
               <p className="text-blue-100 mt-1 text-xs sm:text-base">Complete all sections to schedule the surgery</p>
             </div>
-            <button onClick={() => setShowAddForm(false)} className="text-white hover:bg-white/20 p-2 rounded-lg transition flex-shrink-0">
+            <button onClick={() => { setShowAddForm(false); setCurrentStep(1); }} className="text-white hover:bg-white/20 p-2 rounded-lg transition flex-shrink-0">
               <X size={24} className="sm:hidden" />
               <X size={28} className="hidden sm:block" />
             </button>
