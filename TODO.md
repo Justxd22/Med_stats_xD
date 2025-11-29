@@ -27,3 +27,30 @@
 - Seprate Pateint details from Surgery details
 - RTL - LTR Fix 
 
+
+
+- 5 sec to 30 sec ===================== done
+- add helper doc ===================== done
+- Add Trash button in SurgeryRoomDisplay ===================== done
+
+
+- Visual acuity Right/left  ===================== done
+- Refraction Right/left  ===================== done
+- IOL POWER Right/left  ===================== done
+
+
+
+- Fix data duplicate issue, Dont add data if exists in RTDB === DONE
+- add api to middleware
+- show empty rooms even if no data for them
+- Archieved old data DO NOT UPDATE
+- after future add dont go back
+
+
+- Fix DOB format date issue
+- Write migrate script to fix DOB issue
+
+
+- Data Cleanup, Old days drop completely from RTDB
+
+- tight security
