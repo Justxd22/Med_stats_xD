@@ -25,10 +25,25 @@ const parseNationalId = (id) => {
     const age = new Date().getFullYear() - dob.getFullYear();
     const gender = genderDigit % 2 !== 0 ? 'Male' : 'Female';
 
-    return { dob: dob.toLocaleDateString(), age, gender };
+    // Manual formatting to ensure clean LTR string (DD/MM/YYYY)
+    const formattedDob = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${birthYear}`;
+
+    return { dob: formattedDob, age, gender };
   } catch (e) {
     return null;
   }
+};
+
+// --- Helper to clean DB dates ---
+const formatDisplayDob = (dob) => {
+  if (!dob) return '';
+  // Attempt to find day, month, year digits amidst potentially messy characters (like RTL marks)
+  const match = dob.match(/(\d{1,2})\D+(\d{1,2})\D+(\d{4})/);
+  if (match) {
+    return `${match[1].padStart(2, '0')}/${match[2].padStart(2, '0')}/${match[3]}`;
+  }
+  // Fallback: simply strip common invisible control characters
+  return dob.replace(/[\u200E\u200F\u202A-\u202E]/g, '');
 };
 
 const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true, isEditable = true, displayDate = new Date(), handlePrevDay = () => {}, handleNextDay = () => {}, isToday = true, isLoading = false }) => {
@@ -804,7 +819,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                                               <span>/</span>
                                               <span className="font-medium">{surgery.gender === 'Male' ? 'M' : 'F'}</span>
                                               <span>/</span>
-                                              <span className="font-medium">{surgery.dob}</span>
+                                              <span className="font-medium">{formatDisplayDob(surgery.dob)}</span>
                                             </div>
                                           </div>
 
