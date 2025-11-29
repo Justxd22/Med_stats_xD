@@ -4,7 +4,8 @@ import { db, firestore } from '../../../../lib/firebase-admin';
 export async function PUT(request: Request, context: { params: { id: string } }) {
   try {
     const { roomId, newStatus } = await request.json();
-    const surgeryId = context.params.id;
+    const params = await context.params;
+    const surgeryId = params.id;
 
     // Update Realtime DB
     const roomRef = db.ref(`rooms/${roomId}`);

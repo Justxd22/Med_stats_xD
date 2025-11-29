@@ -7,12 +7,21 @@ const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'your-supe
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Exclude public routes
+  if (pathname === '/api/login') {
+    return NextResponse.next();
+  }
+
   const authToken = request.cookies.get('auth_token')?.value;
 
   const loginUrl = request.nextUrl.clone();
   loginUrl.pathname = '/login';
 
   if (!authToken) {
+    if (pathname.startsWith('/api')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.redirect(loginUrl);
   }
 
@@ -25,10 +34,13 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch (err) {
+    if (pathname.startsWith('/api')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.redirect(loginUrl);
   }
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/viewer/:path*'],
+  matcher: ['/admin/:path*', '/viewer/:path*', '/api/:path*'],
 };
