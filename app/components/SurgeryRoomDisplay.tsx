@@ -31,7 +31,7 @@ const parseNationalId = (id) => {
   }
 };
 
-const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true, isEditable = true, displayDate = new Date(), handlePrevDay = () => {}, handleNextDay = () => {}, isToday = true }) => {
+const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () => {}, handleStatusChange = (roomId: any, id: any, value: string) => {}, handleRemoveSurgery = () => {}, handleMoveSurgery = () => {}, isAdmin = true, isEditable = true, displayDate = new Date(), handlePrevDay = () => {}, handleNextDay = () => {}, isToday = true, isLoading = false }) => {
   const roomColors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-pink-500', 'bg-teal-500', 'bg-indigo-500'];
   
   // --- Definitive Operation Data ---
@@ -704,7 +704,13 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
         {!showHistory ? (
           <>
           <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4">
+            <div className="relative min-h-[50vh]">
+              {isLoading && (
+                <div className="absolute inset-0 bg-gray-900/50 z-50 flex items-center justify-center backdrop-blur-sm rounded-xl transition-all duration-300">
+                  <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+              )}
+              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4 transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
               {rooms.filter(room => room).map(room => {
                 const currentSurgery = getCurrentSurgery(room.surgeries);
                               const totalSurgeriesInRoom = room.surgeries ? room.surgeries.length : 0;
@@ -913,6 +919,7 @@ const SurgeryRoomDisplay = ({ rooms = [], history = [], handleAddSurgery = () =>
                   </div>
                 );
               })}
+            </div>
             </div>
             </DragDropContext>
             <div className="text-center pt-5 text-gray-500 text-xm pb-5">

@@ -16,6 +16,7 @@ const AdminPage = () => {
   const [rooms, setRooms] = useState([]);
   const [history, setHistory] = useState([]);
   const [displayDate, setDisplayDate] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(false);
   
   // Ref to track current displayDate for event listeners
   const displayDateRef = React.useRef(displayDate);
@@ -66,6 +67,7 @@ const AdminPage = () => {
   }, [rooms]);
 
   const fetchArchivedData = useCallback((date) => {
+    setIsLoading(true);
     fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
       .then(res => res.json())
       .then(data => {
@@ -76,12 +78,14 @@ const AdminPage = () => {
         
         const finalRooms = mergeWithDefaultRooms(uniqueRooms);
         setRooms(finalRooms);
+        setIsLoading(false);
         // setHistory is handled by useEffect
       })
       .catch(error => {
         console.error('Failed to fetch archived data', error);
         const defaultRooms = mergeWithDefaultRooms([]);
         setRooms(defaultRooms);
+        setIsLoading(false);
       });
   }, [deduplicateSurgeries, mergeWithDefaultRooms]);
 
@@ -114,6 +118,7 @@ const AdminPage = () => {
         
         const finalRooms = mergeWithDefaultRooms(processedRooms);
         setRooms(finalRooms);
+        setIsLoading(false);
       });
       
       return () => unsubscribe();
@@ -123,6 +128,7 @@ const AdminPage = () => {
   }, [displayDate, isToday, deduplicateSurgeries, fetchArchivedData, mergeWithDefaultRooms]);
 
   const handlePrevDay = () => {
+    setIsLoading(true);
     setDisplayDate(prevDate => {
       const newDate = new Date(prevDate);
       newDate.setDate(newDate.getDate() - 1);
@@ -131,6 +137,7 @@ const AdminPage = () => {
   };
 
   const handleNextDay = () => {
+    setIsLoading(true);
     setDisplayDate(prevDate => {
       const newDate = new Date(prevDate);
       newDate.setDate(newDate.getDate() + 1);
@@ -306,6 +313,7 @@ const AdminPage = () => {
       handlePrevDay={handlePrevDay}
       handleNextDay={handleNextDay}
       isToday={isToday}
+      isLoading={isLoading}
     />
   );
 };

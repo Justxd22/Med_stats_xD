@@ -16,6 +16,7 @@ const ViewerPage = () => {
   const [rooms, setRooms] = useState([]);
   const [history, setHistory] = useState([]);
   const [displayDate, setDisplayDate] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(false);
   const inactivityTimerRef = useRef(null);
 
   // Ref to track current displayDate for event listeners
@@ -83,6 +84,7 @@ const ViewerPage = () => {
     };
 
     const fetchArchivedData = (date) => {
+      setIsLoading(true);
       fetch(`/api/archive?date=${toYYYYMMDD(date)}`)
         .then(res => res.json())
         .then(data => {
@@ -95,6 +97,7 @@ const ViewerPage = () => {
           setRooms(finalRooms);
           // setHistory is handled by useEffect
           resetInactivityTimer();
+          setIsLoading(false);
         })
         .catch(error => {
           console.error('Failed to fetch archived data', error);
@@ -102,6 +105,7 @@ const ViewerPage = () => {
           setRooms(defaultRooms);
           // setHistory handled by useEffect
           resetInactivityTimer();
+          setIsLoading(false);
         });
     };
 
@@ -134,6 +138,7 @@ const ViewerPage = () => {
 
         const finalRooms = mergeWithDefaultRooms(processedRooms);
         setRooms(finalRooms);
+        setIsLoading(false);
       });
       
       return () => unsubscribe();
@@ -157,6 +162,7 @@ const ViewerPage = () => {
 
 
   const handlePrevDay = () => {
+    setIsLoading(true);
     setDisplayDate(prevDate => {
       const newDate = new Date(prevDate);
       newDate.setDate(newDate.getDate() - 1);
@@ -165,6 +171,7 @@ const ViewerPage = () => {
   };
 
   const handleNextDay = () => {
+    setIsLoading(true);
     setDisplayDate(prevDate => {
       const newDate = new Date(prevDate);
       newDate.setDate(newDate.getDate() + 1);
@@ -265,6 +272,7 @@ const ViewerPage = () => {
       handlePrevDay={handlePrevDay}
       handleNextDay={handleNextDay}
       isToday={isToday}
+      isLoading={isLoading}
     />
   );
 };
